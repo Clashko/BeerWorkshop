@@ -1,0 +1,90 @@
+gitignore
+# ================================================
+# .gitignore для проекта .NET + React (монорепозиторий)
+# ================================================
+
+# --- Правила для .NET / Visual Studio ---
+## Игнорирование папок сборки (bin, obj) и артефактов
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.exe
+*.dll
+*.pdb
+*.suo
+*.user
+*.config.user
+*.aps
+*.manifest
+*.res
+*.resources
+*.cache
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.ipch
+_ReSharper.*/
+[Tt]humbs.db
+[Dd]esktop.ini
+
+## Игнорирование временных файлов и логов
+*.log
+*.pfx
+*.vspscc
+*.vssscc
+.vshost.exe
+.vshost.exe.config
+.vshost.exe.manifest
+*.sap
+
+## Файлы Visual Studio/IDE
+.vs/                  # Игнорировать скрытую папку .vs (VS 2017 и выше)
+*.csproj.user
+*.vcproj.user
+*.sln.GhostDoc.xml
+*.opensdf
+*.sdf
+
+## NuGet
+# Игнорировать пакеты NuGet, если они хранятся в корневом каталоге (обычно не рекомендуется)
+# Если вы используете пользовательскую папку пакетов, укажите ее здесь
+# eg: /packages/
+
+# --- Правила для React / Node.js / npm ---
+## Зависимости
+node_modules/
+
+## Артефакты сборки (React)
+# Например, если ваш клиент React находится в подпапке "client-app" или "frontend"
+build/
+dist/
+out/
+client-app/build/
+frontend/build/
+
+## Файлы конфигурации и логов
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+## Разное
+# Если вы используете другие инструменты разработки, добавьте их сюда (например, VS Code)
+.vscode/
+.idea/ # Для пользователей JetBrains Rider/WebStorm
+
+# --- Дополнительные системные и временные файлы ---
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+*.stackdump
