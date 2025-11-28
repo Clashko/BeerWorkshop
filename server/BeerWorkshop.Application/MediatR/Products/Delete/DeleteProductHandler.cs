@@ -24,7 +24,7 @@ public class DeleteProductHandler(BeerWorkshopContext context, IMapper mapper) :
 
             if (product.Statistics.Count > 0)
             {
-                var deletedProductStatistic = mapper.Map<IEnumerable<DeletedProductsStatisticEntity>>(product.Statistics, opts => opts.Items["ProductName"] = product.Name);
+                var deletedProductStatistic = mapper.Map<IEnumerable<DeletedProductsStatisticEntity>>(product.Statistics, opts => { opts.Items["ProductName"] = product.Name; opts.Items["ProductType"] = product.ProductType; });
                 await context.DeletedProductsStatistics.AddRangeAsync(deletedProductStatistic, cancellationToken);
             }
 

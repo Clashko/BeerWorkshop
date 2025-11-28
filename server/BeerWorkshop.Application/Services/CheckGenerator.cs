@@ -20,7 +20,7 @@ public class CheckGenerator(ICheckNumberService checkNumberService, IConfigurati
         AppendReatilDocumentSection(sb, transactionType, parameters, checkModel.Cashier);
         AppendItemsSection(sb, checkModel.DiscountCalculatorType, checkModel.Items);
         AppendTotalDiscountSection(sb, checkModel.DiscountCalculatorType, checkModel.TotalDiscount);
-        AppendTotalPriceSection(sb, checkModel.TotalPrice);
+        AppendTotalPriceSection(sb, checkModel.TotalPrice, transactionType);
         return new CheckGenerationResult(sb.ToString(), parameters.OrderNumber);
     }
 
@@ -41,6 +41,9 @@ public class CheckGenerator(ICheckNumberService checkNumberService, IConfigurati
 
         switch (transactionType)
         {
+            case TransactionType.Arrival:
+                sb.Append(BasketStaticValues.ArrivalDocument.PaddingLeft(lineLenght));
+                break;
             case TransactionType.Sale:
                 sb.AppendLine(BasketStaticValues.RetailDocument.PaddingLeft(lineLenght));
                 break;
@@ -60,7 +63,7 @@ public class CheckGenerator(ICheckNumberService checkNumberService, IConfigurati
 
         foreach (var item in items)
         {
-            var summaryResult = string.Format(BasketStaticValues.Formats[FormatEnum.ItemRow], item.Quantity, item.Measure, item.Price);
+            var summaryResult = string.Format(BasketStaticValues.Formats[FormatEnum.ItemRow], item.Quantity, BasketStaticValues.Measures[item.Measure], item.Price);
             sb.AppendLine(item.Name + summaryResult.PadLeft(lineLenght - item.Name.Length));
 
             if (item.Discount is not null && (discountCalculatorType.Equals(DiscountCalculatorType.FullDiscount) || discountCalculatorType.Equals(DiscountCalculatorType.OnlyItemDiscount)))
@@ -83,11 +86,16 @@ public class CheckGenerator(ICheckNumberService checkNumberService, IConfigurati
         }
     }
 
-    private void AppendTotalPriceSection(StringBuilder sb, decimal totalPrice)
+    private void AppendTotalPriceSection(StringBuilder sb, decimal totalPrice, TransactionType transactionType)
     {
         var lineLenght = configuration.GetSection("CheckConfiguration").GetValue<int>("LineLength");
         var formatResult = string.Format(BasketStaticValues.Formats[FormatEnum.TotalPrice], totalPrice);
-        sb.AppendLine(BasketStaticValues.TotalPrice + formatResult.PadLeft(lineLenght - BasketStaticValues.TotalPrice.Length));
+        var placeholder = transactionType switch
+        {
+            TransactionType.Arrival or TransactionType.WriteOff => BasketStaticValues.PricePlaceholder,
+            _ => BasketStaticValues.TotalPrice
+        };
+        sb.AppendLine(placeholder + formatResult.PadLeft(lineLenght - placeholder.Length));
     }
 
     private void AppendSeparator(StringBuilder sb)

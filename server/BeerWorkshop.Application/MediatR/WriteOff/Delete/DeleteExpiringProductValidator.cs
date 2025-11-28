@@ -6,9 +6,10 @@ public class DeleteExpiringProductValidator : AbstractValidator<DeleteExpiringPr
 {
     public DeleteExpiringProductValidator()
     {
-        RuleFor(p => p.Data.Ids).NotNull().WithMessage("Expiring product Ids list is required");
-        RuleFor(p => p.Data.Cashier)
-            .NotNull().WithMessage("Expiring product Ids list is required")
-            .NotEmpty().WithMessage("Expiring product Ids list is required");
+        RuleFor(p => p.Ids).NotNull().WithMessage("Expiring product Ids list is required");
+
+        RuleFor(p => p.UserId)
+            .NotNull().WithMessage("User is not authorized")
+            .NotEqual(Guid.Empty).WithMessage("User is not authorized");
     }
 }

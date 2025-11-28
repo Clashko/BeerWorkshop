@@ -1,5 +1,4 @@
 using BeerWorkshop.Api.Extensions;
-using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

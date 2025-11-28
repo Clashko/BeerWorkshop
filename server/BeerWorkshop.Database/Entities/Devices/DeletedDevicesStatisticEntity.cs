@@ -17,6 +17,6 @@ public class DeletedDevicesStatisticEntity
     public decimal TotalAmount { get; set; }
     public DateTime TransactionDate { get; set; }
 
-    public Guid CheckId { get; set; }
-    public CheckEntity Check { get; set; } = null!;
+    public Guid? CheckId { get; set; }
+    public CheckEntity? Check { get; set; } = null!;
 }

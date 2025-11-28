@@ -4,5 +4,4 @@ public enum ProductType
 {
     Drink,
     Food,
-    Container
 }

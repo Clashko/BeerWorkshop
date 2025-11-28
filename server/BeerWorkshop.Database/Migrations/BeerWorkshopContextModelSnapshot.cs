@@ -50,7 +50,7 @@ namespace BeerWorkshop.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CheckId")
+                    b.Property<Guid?>("CheckId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DeviceName")
@@ -135,7 +135,7 @@ namespace BeerWorkshop.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CheckId")
+                    b.Property<Guid?>("CheckId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("DeviceId")
@@ -174,7 +174,7 @@ namespace BeerWorkshop.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CheckId")
+                    b.Property<Guid?>("CheckId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Discount")
@@ -186,6 +186,9 @@ namespace BeerWorkshop.Database.Migrations
                     b.Property<string>("ProductName")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("ProductType")
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Quantity")
                         .HasColumnType("TEXT");
@@ -280,7 +283,7 @@ namespace BeerWorkshop.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CheckId")
+                    b.Property<Guid?>("CheckId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Discount")
@@ -313,13 +316,48 @@ namespace BeerWorkshop.Database.Migrations
                     b.ToTable("ProductsStatistic");
                 });
 
+            modelBuilder.Entity("BeerWorkshop.Database.Entities.Users.UserEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SurName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("BeerWorkshop.Database.Entities.Devices.DeletedDevicesStatisticEntity", b =>
                 {
                     b.HasOne("BeerWorkshop.Database.Entities.CheckEntity", "Check")
                         .WithMany("DeletedDevicesStatistics")
-                        .HasForeignKey("CheckId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CheckId");
 
                     b.Navigation("Check");
                 });
@@ -339,9 +377,7 @@ namespace BeerWorkshop.Database.Migrations
                 {
                     b.HasOne("BeerWorkshop.Database.Entities.CheckEntity", "Check")
                         .WithMany("DevicesStatistics")
-                        .HasForeignKey("CheckId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CheckId");
 
                     b.HasOne("BeerWorkshop.Database.Entities.Devices.DeviceEntity", "Device")
                         .WithMany("Statistics")
@@ -358,9 +394,7 @@ namespace BeerWorkshop.Database.Migrations
                 {
                     b.HasOne("BeerWorkshop.Database.Entities.CheckEntity", "Check")
                         .WithMany("DeletedProductsStatistics")
-                        .HasForeignKey("CheckId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CheckId");
 
                     b.Navigation("Check");
                 });
@@ -380,9 +414,7 @@ namespace BeerWorkshop.Database.Migrations
                 {
                     b.HasOne("BeerWorkshop.Database.Entities.CheckEntity", "Check")
                         .WithMany("ProductsStatistics")
-                        .HasForeignKey("CheckId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CheckId");
 
                     b.HasOne("BeerWorkshop.Database.Entities.Products.ProductEntity", "Product")
                         .WithMany("Statistics")

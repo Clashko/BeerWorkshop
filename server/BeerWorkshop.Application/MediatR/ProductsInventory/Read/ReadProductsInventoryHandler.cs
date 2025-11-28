@@ -1,5 +1,6 @@
 using AutoMapper;
 using BeerWorkshop.Application.Dto.Responses;
+using BeerWorkshop.Application.Dto.Responses.Products;
 using BeerWorkshop.Application.Dto.Responses.ProductsInventory;
 using BeerWorkshop.Database.Contexts;
 using MediatR;
@@ -13,14 +14,17 @@ public class ReadProductsInventoryHandler(BeerWorkshopContext context, IMapper m
     {
         try
         {
-            var productsInventory = await context.Products.Include(p => p.Inventory).ToListAsync(cancellationToken);
+            var productsInventoryGroups = await context.ProductsInventory.Include(p => p.Product).GroupBy(p => p.Product).ToListAsync(cancellationToken);
 
-            if (productsInventory == null || productsInventory.Count == 0)
+            if (productsInventoryGroups == null || productsInventoryGroups.Count == 0)
                 return MediatrResponseDto<IEnumerable<ProductInventoryResponseDto>>.NotFound("Products inventory empty");
 
-            var result = mapper.Map<IEnumerable<ProductInventoryResponseDto>>(productsInventory);
+            var result = productsInventoryGroups.Select(g => new ProductInventoryResponseDto(
+                Product: mapper.Map<ProductResponseDto>(g.Key),
+                InventoryItems: mapper.Map<IEnumerable<ProductInventoryItemResponseDto>>(g)
+            ));
 
-            return MediatrResponseDto<IEnumerable<ProductInventoryResponseDto>>.Success(result, $"Founded inventory items: {productsInventory.Sum(pi => pi.Inventory.Count)}");
+            return MediatrResponseDto<IEnumerable<ProductInventoryResponseDto>>.Success(result, $"Founded inventory items: {result.Sum(r => r.InventoryItems.Count())}");
         }
         catch (Exception ex)
         {

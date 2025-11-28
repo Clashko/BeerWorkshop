@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using BeerWorkshop.Api.Dto;
 using BeerWorkshop.Application.Dto.Responses;
 using BeerWorkshop.Application.Enums;
@@ -19,4 +20,6 @@ public class BaseApiController : ControllerBase
                 ResponseStatus.BadRequest => BadRequest(response.Message),
                 _ => throw new NotImplementedException(),
             };
+
+    protected Guid GetAuthenticatedUserId() => User.FindFirst(ClaimTypes.Name) is { } claim ? Guid.Parse(claim.Value) : Guid.Empty;
 }

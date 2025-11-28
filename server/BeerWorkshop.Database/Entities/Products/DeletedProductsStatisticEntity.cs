@@ -10,6 +10,7 @@ public class DeletedProductsStatisticEntity
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
     public string ProductName { get; set; } = string.Empty;
+    public ProductType ProductType { get; set; }
     public TransactionType TransactionType { get; set; }
     public decimal Quantity { get; set; }
     public decimal Price { get; set; }
@@ -17,6 +18,6 @@ public class DeletedProductsStatisticEntity
     public decimal TotalAmount { get; set; }
     public DateTime TransactionDate { get; set; }
 
-    public Guid CheckId { get; set; }
-    public CheckEntity Check { get; set; } = null!;
+    public Guid? CheckId { get; set; }
+    public CheckEntity? Check { get; set; } = null!;
 }

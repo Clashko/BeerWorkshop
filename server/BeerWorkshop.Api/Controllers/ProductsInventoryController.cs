@@ -3,10 +3,12 @@ using BeerWorkshop.Application.MediatR.ProductsInventory.Create;
 using BeerWorkshop.Application.MediatR.ProductsInventory.Read;
 using BeerWorkshop.Application.MediatR.ProductsInventory.Update;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BeerWorkshop.Api.Controllers;
 
+[Authorize]
 public class ProductsInventoryController(IMediator mediator) : BaseApiController
 {
     [HttpGet]

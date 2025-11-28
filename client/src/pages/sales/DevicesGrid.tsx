@@ -1,0 +1,117 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Button, Card, Typography } from "@material-tailwind/react";
+import { ColDef } from "ag-grid-community";
+import { useAppSelector } from "../../redux/store/store";
+import { toast } from "react-toastify";
+import { useEffect, useRef } from "react";
+import { DataGrid, DataGridQuickFilter, DataGridRef } from "../../components";
+import { BiRefresh } from "react-icons/bi";
+import { DeviceInventoryRow } from "../devicesInventory/Grid";
+import { useReadDevicesInventoryMutation } from "../../redux/api/devicesInventoryApi";
+import { selectDevicesInventory } from "../../redux/features/devicesInventorySlice";
+import { AddDeviceDialog } from "./AddDeviceDialog";
+import { BasketRow } from "./Sales";
+
+interface Props {
+  basketDevices: BasketRow[];
+  setBasketDevices: React.Dispatch<React.SetStateAction<BasketRow[]>>;
+}
+
+export const DevicesGrid = ({ basketDevices, setBasketDevices }: Props) => {
+  const gridRef = useRef<DataGridRef<DeviceInventoryRow>>(null);
+
+  const [read, { isLoading }] = useReadDevicesInventoryMutation();
+
+  const devices = useAppSelector(selectDevicesInventory);
+
+  const rows: DeviceInventoryRow[] = devices.flatMap((dto) =>
+    dto.inventoryItems.map((item) => ({
+      device: dto.device,
+      item: item,
+    }))
+  );
+
+  useEffect(() => {
+    refreshInventory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const refreshInventory = () => {
+    read()
+      .unwrap()
+      .catch((error) => toast.error(error.data));
+  };
+
+  const columns: ColDef<DeviceInventoryRow>[] = [
+    {
+      headerName: "Наименование",
+      valueGetter: (params) => params.data?.device.name,
+      cellStyle: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "start",
+      },
+      spanRows: true,
+      filter: "agTextColumnFilter",
+    },
+    {
+      headerName: "Стоимость",
+      valueGetter: (params) => params.data?.item.retailPrice,
+      sortable: true,
+      filter: "agNumberColumnFilter",
+    },
+    {
+      headerName: "Количество",
+      valueGetter: (params: any) => {
+        return `${params.data.item.quantity} шт.`;
+      },
+      sortable: true,
+      filter: "agTextColumnFilter",
+    },
+    {
+      colId: "actions",
+      headerName: "",
+      cellRenderer: (params: any) => {
+        return (
+          <AddDeviceDialog device={params.data} addDevice={handleAddDevice} />
+        );
+      },
+      flex: 0,
+      sortable: false,
+      filter: false,
+    },
+  ];
+
+  const handleAddDevice = (row: BasketRow) => {
+    setBasketDevices([...basketDevices, row]);
+  };
+
+  return (
+    <Card className="bg-surface flex flex-col gap-2 h-1/2">
+      <div className="flex flex-row gap-4 items-center justify-between p-4">
+        <Typography type="lead">Расходники</Typography>
+        <DataGridQuickFilter
+          api={gridRef.current?.api ?? null}
+          className="border-primary px-2 py-1"
+        />
+        <Button
+          variant="ghost"
+          size="md"
+          onClick={refreshInventory}
+          className="px-4 py-1"
+        >
+          <div className="flex flex-row gap-2 items-center text-foreground">
+            <BiRefresh size={26} />
+            Обновить
+          </div>
+        </Button>
+      </div>
+      <DataGrid
+        data={rows}
+        columns={columns}
+        isLoading={isLoading}
+        ref={gridRef}
+      />
+    </Card>
+  );
+};

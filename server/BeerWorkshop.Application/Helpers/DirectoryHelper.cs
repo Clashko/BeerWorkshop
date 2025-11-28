@@ -14,11 +14,11 @@ namespace BeerWorkshop.Application.Helpers
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
-            path = Path.Combine(path, transactionDate.Month.ToString("MMMM"));
+            path = Path.Combine(path, transactionDate.ToString("MMMM"));
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
-            path = Path.Combine(path, transactionDate.Day.ToString("dddd"));
+            path = Path.Combine(path, transactionDate.ToString("dddd"));
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 

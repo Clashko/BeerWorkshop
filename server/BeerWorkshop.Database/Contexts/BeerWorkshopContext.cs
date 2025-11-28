@@ -1,6 +1,7 @@
 using BeerWorkshop.Database.Entities;
 using BeerWorkshop.Database.Entities.Devices;
 using BeerWorkshop.Database.Entities.Products;
+using BeerWorkshop.Database.Entities.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace BeerWorkshop.Database.Contexts;
@@ -18,4 +19,6 @@ public class BeerWorkshopContext(DbContextOptions<BeerWorkshopContext> options) 
     public DbSet<DeletedDevicesStatisticEntity> DeletedDevicesStatistics { get; set; }
 
     public DbSet<CheckEntity> Checks { get; set; }
+
+    public DbSet<UserEntity> Users { get; set; }
 }

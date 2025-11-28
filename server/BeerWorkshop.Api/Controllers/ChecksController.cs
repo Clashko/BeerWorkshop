@@ -2,10 +2,12 @@ using BeerWorkshop.Application.Dto.Requests.Checks;
 using BeerWorkshop.Application.MediatR.Checks.GetContent;
 using BeerWorkshop.Application.MediatR.Checks.Read;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BeerWorkshop.Api.Controllers;
 
+[Authorize]
 public class ChecksController(IMediator mediator) : BaseApiController
 {
     [HttpPost]

@@ -4,10 +4,12 @@ using BeerWorkshop.Application.MediatR.Devices.Delete;
 using BeerWorkshop.Application.MediatR.Devices.Read;
 using BeerWorkshop.Application.MediatR.Devices.Update;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BeerWorkshop.Api.Controllers;
 
+[Authorize]
 public class DevicesController(IMediator mediator) : BaseApiController
 {
     [HttpGet]

@@ -19,6 +19,6 @@ public class DevicesStatisticEntity
     public Guid DeviceId { get; set; }
     public DeviceEntity Device { get; set; } = null!;
 
-    public Guid CheckId { get; set; }
-    public CheckEntity Check { get; set; } = null!;
+    public Guid? CheckId { get; set; }
+    public CheckEntity? Check { get; set; } = null!;
 }

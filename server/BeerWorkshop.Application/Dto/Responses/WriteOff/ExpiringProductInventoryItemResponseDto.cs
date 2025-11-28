@@ -6,7 +6,9 @@ public record ExpiringProductInventoryItemResponseDto(
     Guid Id,
     decimal Quantity,
     DateTime IncomingDate,
+    DateTime? OpeningDate,
     DateTime ManufactureDate,
     int ExpirationTime,
-    ExpirationMeasure ExpirationMeasure
+    ExpirationMeasure ExpirationMeasure,
+    ExpirationCountingDateType ExpirationCountingDateType
 );

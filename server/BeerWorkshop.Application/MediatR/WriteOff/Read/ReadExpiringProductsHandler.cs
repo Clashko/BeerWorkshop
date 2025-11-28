@@ -41,19 +41,12 @@ public class ReadExpiringProductsHandler(BeerWorkshopContext context, IMapper ma
             if (expiringItems == null || expiringItems.Count == 0)
                 return MediatrResponseDto<IEnumerable<ExpiringProductResponseDto>>.NotFound("Expiring products not founded");
 
-            var result = new List<ExpiringProductResponseDto>();
+            var result = expiringItems.Select(g => new ExpiringProductResponseDto(
+                Product: mapper.Map<ProductResponseDto>(g.Key),
+                ExpiringItems: mapper.Map<IEnumerable<ExpiringProductInventoryItemResponseDto>>(g)
+            ));
 
-            foreach (var item in expiringItems)
-            {
-                var itemsResult = new List<ExpiringProductInventoryItemResponseDto>();
-                foreach (var eItem in item)
-                {
-                    itemsResult.Add(mapper.Map<ExpiringProductInventoryItemResponseDto>(eItem));
-                }
-                result.Add(new ExpiringProductResponseDto(mapper.Map<ProductResponseDto>(item.Key), itemsResult));
-            }
-
-            return MediatrResponseDto<IEnumerable<ExpiringProductResponseDto>>.Success(result, $"Founded expiring products: {expiringItems.Count}");
+            return MediatrResponseDto<IEnumerable<ExpiringProductResponseDto>>.Success(result, $"Founded expiring products: {result.Sum(r => r.ExpiringItems.Count())}");
         }
         catch (Exception ex)
         {

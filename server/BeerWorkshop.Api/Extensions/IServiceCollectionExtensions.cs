@@ -1,15 +1,19 @@
-using System.Reflection;
+using System.Text;
 using BeerWorkshop.Api.Behaviors;
 using BeerWorkshop.Application.MappingProfiles;
 using BeerWorkshop.Application.MediatR.Products.Create;
 using BeerWorkshop.Application.MediatR.Products.Read;
+using BeerWorkshop.Application.Models;
 using BeerWorkshop.Application.Services;
 using BeerWorkshop.Application.Services.Interfaces;
 using BeerWorkshop.Database.Contexts;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 
 namespace BeerWorkshop.Api.Extensions;
 
@@ -17,12 +21,15 @@ public static class IServiceCollectionExtensions
 {
     public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        var authConfig = configuration.GetRequiredSection("AuthConfiguration").Get<AuthConfiguration>() ?? throw new Exception("Can't load Auth config");
+        services.AddSingleton(authConfig);
+
         services.AddDbContext<BeerWorkshopContext>(opt =>
             opt.UseSqlite(configuration.GetConnectionString("BeerWorkshopDbConnectionString")));
 
         services.AddControllers();
 
-        services.AddOpenApi();
+        services.AddSwaggerDocs();
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ReadProductsHandler).Assembly));
 
@@ -36,6 +43,10 @@ public static class IServiceCollectionExtensions
         services.AddTransient<ICheckNumberService, CheckNumberService>();
         services.AddSingleton<ICheckGenerator, CheckGenerator>();
 
+        services.AddScoped<ITokenService, TokenService>();
+
+        services.AddJwtAuthentication(authConfig);
+
         services.AddCors(options =>
         {
             options.AddPolicy(name: "AllowAllPolicy",
@@ -47,4 +58,27 @@ public static class IServiceCollectionExtensions
                 });
         });
     }
+
+    public static void AddSwaggerDocs(this IServiceCollection services) =>
+        services.AddSwaggerGen(opt =>
+        {
+            opt.SwaggerDoc("BeerWorkshopService", new OpenApiInfo
+            {
+                Title = "Beer Workshop",
+                Version = "v1",
+                Description = "Beer Workshop Service is designed to control products and devices of the beer store"
+            });
+
+            opt.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+            {
+                Description = "Введите JWT токен в формате: Bearer {token}",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT"
+            });
+
+            opt.CustomSchemaIds(type => type.ToString());
+        });
 }

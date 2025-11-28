@@ -5,4 +5,4 @@ using MediatR;
 
 namespace BeerWorkshop.Application.MediatR.Basket;
 
-public record RealizeCommand(RealizationRequestDto Data) : IRequest<MediatrResponseDto<RealizationResponseDto>>;
+public record RealizeCommand(RealizationRequestDto Data, Guid UserId) : IRequest<MediatrResponseDto<RealizationResponseDto>>;

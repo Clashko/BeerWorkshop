@@ -8,6 +8,7 @@ using BeerWorkshop.Database.Contexts;
 using BeerWorkshop.Database.Entities;
 using BeerWorkshop.Database.Entities.Devices;
 using BeerWorkshop.Database.Entities.Products;
+using BeerWorkshop.Database.Entities.Users;
 using BeerWorkshop.Database.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,11 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
         using var transaction = context.Database.BeginTransaction();
         try
         {
+            var user = await context.Users.FindAsync([request.UserId], cancellationToken);
+
+            if (user is null)
+                return MediatrResponseDto<RealizationResponseDto>.NotFound("User not found");
+
             var transactionDate = DateTime.Now;
 
             var checkRowGuid = Guid.NewGuid();
@@ -32,9 +38,11 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
 
             checkRows.AddRange(await ProcessDevices(request, transactionDate, checkRowGuid, cancellationToken));
 
-            var totalPrice = checkRows.Sum(x => x.Price * x.Quantity);
+            var totalPrice = checkRows.Sum(x => x.TotalAmount);
 
-            var check = await GenerateAndSaveCheck(request, checkRowGuid, checkRows, totalPrice, transactionDate);
+            var check = await GenerateAndSaveCheck(request, checkRowGuid, checkRows, totalPrice, transactionDate, user);
+
+            await context.SaveChangesAsync(cancellationToken);
 
             var result = new RealizationResponseDto(check, totalPrice);
 
@@ -45,7 +53,7 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(cancellationToken);
             return MediatrResponseDto<RealizationResponseDto>.Failure($"Error in sale process: {ex.Message}");
         }
     }
@@ -63,6 +71,9 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
         {
             var productInventoryItem = productsInventoryItems.FirstOrDefault(p => p.Id.Equals(product.Id)) ?? throw new Exception($"Product inventory item with ID: {product.Id} not founded");
 
+            if (productInventoryItem.Quantity < product.Quantity)
+                throw new Exception($"Product inventory item with id:{productInventoryItem.Id} has less quantity than required");
+
             productInventoryItem.Quantity -= product.Quantity;
 
             var totalPrice = CountTotalPriceWithDiscount(productInventoryItem.RetailPrice, product.Quantity, request.Data.DiscountCalculatorType, product.DiscountPercent, request.Data.TotalDiscount);
@@ -70,7 +81,7 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
             var statistic = new ProductsStatisticEntity
             {
                 ProductId = productInventoryItem.ProductId,
-                TransactionType = Database.Enums.TransactionType.Sale,
+                TransactionType = TransactionType.Sale,
                 Quantity = product.Quantity,
                 Price = productInventoryItem.RetailPrice,
                 Discount = GenerateStatisticDiscountValue(BasketItemType.Device, request.Data.DiscountCalculatorType, product.DiscountPercent, request.Data.TotalDiscount),
@@ -78,15 +89,14 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
                 TransactionDate = transactionDate,
                 CheckId = checkRowGuid
             };
-
-            if (productInventoryItem.Quantity <= product.Quantity)
-                context.ProductsInventory.Remove(productInventoryItem);
-
             context.ProductsStatistic.Add(statistic);
 
-            await context.SaveChangesAsync(cancellationToken);
+            if (productInventoryItem.Quantity <= 0)
+            {
+                context.ProductsInventory.Remove(productInventoryItem);
+            }
 
-            result.Add(new CheckRow(productInventoryItem.Product.ShortName, productInventoryItem.Product.UnitOfMeasure, product.Quantity, productInventoryItem.RetailPrice, product.DiscountPercent));
+            result.Add(new CheckRow(productInventoryItem.Product.ShortName, productInventoryItem.Product.UnitOfMeasure, product.Quantity, productInventoryItem.RetailPrice, totalPrice, product.DiscountPercent));
         }
 
         return result;
@@ -98,11 +108,15 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
 
         var devicesInventoryItems = await context.DevicesInventory
                 .Where(p => request.Data.Devices.Select(p => p.Id).Contains(p.Id))
+                .Include(p => p.Device)
                 .ToListAsync(cancellationToken);
 
         foreach (var device in request.Data.Devices)
         {
             var deviceInventoryItem = devicesInventoryItems.FirstOrDefault(p => p.Id.Equals(device.Id)) ?? throw new Exception($"Device inventory item with ID: {device.Id} not founded");
+
+            if (deviceInventoryItem.Quantity < device.Quantity)
+                throw new Exception($"Product inventory item with id:{deviceInventoryItem.Id} has less quantity than required");
 
             deviceInventoryItem.Quantity -= device.Quantity;
 
@@ -111,7 +125,7 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
             var statistic = new DevicesStatisticEntity
             {
                 DeviceId = deviceInventoryItem.DeviceId,
-                TransactionType = Database.Enums.TransactionType.Sale,
+                TransactionType = TransactionType.Sale,
                 Quantity = device.Quantity,
                 Price = deviceInventoryItem.RetailPrice,
                 Discount = GenerateStatisticDiscountValue(BasketItemType.Device, request.Data.DiscountCalculatorType, device.DiscountPercent, request.Data.TotalDiscount),
@@ -119,12 +133,14 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
                 TransactionDate = transactionDate,
                 CheckId = checkRowGuid
             };
-
             context.DevicesStatistic.Add(statistic);
 
-            await context.SaveChangesAsync(cancellationToken);
+            if (deviceInventoryItem.Quantity <= 0)
+            {
+                context.DevicesInventory.Remove(deviceInventoryItem);
+            }
 
-            result.Add(new CheckRow(deviceInventoryItem.Device.ShortName, Database.Enums.UnitOfMeasure.Piece, device.Quantity, deviceInventoryItem.RetailPrice, device.DiscountPercent));
+            result.Add(new CheckRow(deviceInventoryItem.Device.ShortName, UnitOfMeasure.Piece, device.Quantity, deviceInventoryItem.RetailPrice, totalPrice, device.DiscountPercent));
         }
 
         return result;
@@ -219,9 +235,9 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
         return string.Format("Total discount: {0}%", totalDiscount.Value);
     }
 
-    private async Task<string> GenerateAndSaveCheck(RealizeCommand request, Guid checkRowGuid, List<CheckRow> checkRows, decimal totalPrice, DateTime transactionDate)
+    private async Task<string> GenerateAndSaveCheck(RealizeCommand request, Guid checkRowGuid, List<CheckRow> checkRows, decimal totalPrice, DateTime transactionDate, UserEntity user)
     {
-        var check = checkGenerator.GenerateCheck(new CheckModel(request.Data.Cashier, checkRows, totalPrice, request.Data.DiscountCalculatorType, request.Data.TotalDiscount), TransactionType.Sale);
+        var check = checkGenerator.GenerateCheck(new CheckModel($"{user.LastName} {user.FirstName[0].ToString().ToUpper()}.{user.SurName[0].ToString().ToUpper()}", checkRows, totalPrice, request.Data.DiscountCalculatorType, request.Data.TotalDiscount), TransactionType.Sale);
 
         var path = configuration.CreateCheckDirectoriesAndGeneratePath(check.OrderNumber, transactionDate);
 
@@ -236,8 +252,6 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
             TransactionType = TransactionType.Sale,
             OrderNumber = check.OrderNumber,
         });
-
-        await context.SaveChangesAsync();
 
         return check.CheckContent;
     }

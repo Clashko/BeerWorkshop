@@ -20,8 +20,13 @@ public class DeleteExpiringProductHandler(BeerWorkshopContext context, ICheckGen
         using var transaction = context.Database.BeginTransaction();
         try
         {
+            var user = await context.Users.FindAsync([request.UserId], cancellationToken);
+
+            if (user is null)
+                return MediatrResponseDto<WriteOffResponseDto>.NotFound("User not found");
+
             var expiringProducts = await context.ProductsInventory
-                .Where(p => request.Data.Ids.Contains(p.Id))
+                .Where(p => request.Ids.Contains(p.Id))
                 .Include(p => p.Product)
                 .ToListAsync(cancellationToken);
 
@@ -34,35 +39,42 @@ public class DeleteExpiringProductHandler(BeerWorkshopContext context, ICheckGen
             var checkRows = new List<CheckRow>();
             var totalPrice = 0m;
 
+            var statisticRows = new List<ProductsStatisticEntity>();
+
             foreach (var expiringProduct in expiringProducts)
             {
+                var totalAmount = expiringProduct.PurchasePrice * expiringProduct.Quantity;
                 var statistic = new ProductsStatisticEntity
                 {
                     ProductId = expiringProduct.ProductId,
-                    TransactionType = TransactionType.Sale,
+                    TransactionType = TransactionType.WriteOff,
                     Quantity = expiringProduct.Quantity,
                     Price = expiringProduct.PurchasePrice,
-                    TotalAmount = expiringProduct.PurchasePrice * expiringProduct.Quantity,
+                    TotalAmount = totalAmount,
                     TransactionDate = transactionDate,
                     CheckId = checkRowGuid
                 };
 
-                checkRows.Add(new CheckRow(expiringProduct.Product.Name, expiringProduct.Product.UnitOfMeasure, expiringProduct.Quantity, expiringProduct.PurchasePrice));
+                statisticRows.Add(statistic);
 
-                totalPrice += expiringProduct.PurchasePrice * expiringProduct.Quantity;
+                checkRows.Add(new CheckRow(expiringProduct.Product.Name, expiringProduct.Product.UnitOfMeasure, expiringProduct.Quantity, expiringProduct.PurchasePrice, totalAmount));
 
-                context.ProductsStatistic.Add(statistic);
+                totalPrice += totalAmount;
 
                 context.ProductsInventory.Remove(expiringProduct);
             }
 
             await context.SaveChangesAsync(cancellationToken);
 
-            var check = await GenerateAndSaveCheck(request.Data.Cashier, checkRowGuid, checkRows, totalPrice, transactionDate);
+            var check = await GenerateAndSaveCheck($"{user.LastName} {user.FirstName[0].ToString().ToUpper()}.{user.SurName[0].ToString().ToUpper()}", checkRowGuid, checkRows, totalPrice, transactionDate);
+
+            await context.ProductsStatistic.AddRangeAsync(statisticRows, cancellationToken);
+
+            await context.SaveChangesAsync(cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
 
-            return MediatrResponseDto<WriteOffResponseDto>.Success(new WriteOffResponseDto(check, totalPrice), $"{expiringProducts.Count} expired products is successfully deleted. {(request.Data.Ids.Count() != expiringProducts.Count ? $"{request.Data.Ids.Count() - expiringProducts.Count} expired products not founded" : string.Empty)}");
+            return MediatrResponseDto<WriteOffResponseDto>.Success(new WriteOffResponseDto(check, totalPrice), $"{expiringProducts.Count} expired products is successfully deleted. {(request.Ids.Count() != expiringProducts.Count ? $"{request.Ids.Count() - expiringProducts.Count} expired products not founded" : string.Empty)}");
         }
         catch (Exception ex)
         {
@@ -74,7 +86,7 @@ public class DeleteExpiringProductHandler(BeerWorkshopContext context, ICheckGen
     }
     private async Task<string> GenerateAndSaveCheck(string cashier, Guid checkRowGuid, List<CheckRow> checkRows, decimal totalPrice, DateTime transactionDate)
     {
-        var check = checkGenerator.GenerateCheck(new CheckModel(cashier, checkRows, totalPrice), TransactionType.Sale);
+        var check = checkGenerator.GenerateCheck(new CheckModel(cashier, checkRows, totalPrice), TransactionType.WriteOff);
 
         var path = configuration.CreateCheckDirectoriesAndGeneratePath(check.OrderNumber, transactionDate);
 
