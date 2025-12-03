@@ -3,14 +3,10 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   Button,
-  Drawer,
-  IconButton,
   Spinner,
-  Typography,
 } from "@material-tailwind/react";
 import { BiAddToQueue } from "react-icons/bi";
-import { CgClose } from "react-icons/cg";
-import { FormInput } from "../../components";
+import { FormInput, SideBar } from "../../components";
 import { toast } from "react-toastify";
 import { CreateDeviceRequestDto } from "../../redux/dtos/requests/devices";
 import { useCreateDeviceMutation } from "../../redux/api/devicesApi";
@@ -50,61 +46,48 @@ export const AddForm = () => {
   };
 
   return (
-    <Drawer>
-      <Drawer.Trigger
-        as={Button}
-        variant="ghost"
-        size="md"
-        className="flex flex-row gap-2 items-center text-foreground"
+    <SideBar
+      triggerConent={
+        <>
+          <BiAddToQueue size={20} />
+          <span className="hidden sm:block">Добавить</span>
+        </>
+      }
+      color="primary"
+      title="Добавление расходника"
+    >
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="h-full max-h-full flex flex-col gap-4 justify-between"
       >
-        <BiAddToQueue size={26} />
-        Добавить
-      </Drawer.Trigger>
-      <Drawer.Overlay className="bg-surface-dark/70">
-        <Drawer.Panel className="max-h-screen h-screen text-foreground">
-          <div className="flex flex-row justify-between items-center gap-4 mb-4">
-            <Typography type="h6">Добавление расходника</Typography>
-            <Drawer.DismissTrigger
-              as={IconButton}
-              size="sm"
-              variant="ghost"
-              isCircular
-            >
-              <CgClose size={16} />
-            </Drawer.DismissTrigger>
-          </div>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="h-full flex flex-col gap-4"
-          >
-            <FormInput
-              id="name"
-              label="Наименование"
-              type="text"
-              {...register("name")}
-              error={errors.name}
-            />
+        <div className="h-full max-h-full flex flex-col gap-4 overflow-y-auto">
+          <FormInput
+            id="name"
+            label="Наименование"
+            type="text"
+            {...register("name")}
+            error={errors.name}
+          />
 
-            <FormInput
-              id="shortName"
-              label="Короткое наименование"
-              type="text"
-              {...register("shortName")}
-              error={errors.shortName}
-            />
+          <FormInput
+            id="shortName"
+            label="Короткое наименование"
+            type="text"
+            {...register("shortName")}
+            error={errors.shortName}
+          />
+        </div>
 
-            <Button
-              variant="outline"
-              isFullWidth
-              className="text-foreground"
-              onClick={() => clearErrors()}
-            >
-              {isLoading && <Spinner size="sm" />}
-              Добавить
-            </Button>
-          </form>
-        </Drawer.Panel>
-      </Drawer.Overlay>
-    </Drawer>
+        <Button
+          variant="outline"
+          isFullWidth
+          className="text-foreground"
+          onClick={() => clearErrors()}
+        >
+          {isLoading && <Spinner size="sm" />}
+          Добавить
+        </Button>
+      </form>
+    </SideBar>
   );
 };

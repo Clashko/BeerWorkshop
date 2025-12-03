@@ -3,14 +3,10 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   Button,
-  Drawer,
-  IconButton,
   Spinner,
-  Typography,
 } from "@material-tailwind/react";
 import { BiEdit } from "react-icons/bi";
-import { CgClose } from "react-icons/cg";
-import { FormDatePicker, FormInput } from "../../components";
+import { FormDatePicker, FormInput, SideBar } from "../../components";
 import { toast } from "react-toastify";
 import { UpdateDeviceInventoryItemRequestDto } from "../../redux/dtos/requests/devicesInventory";
 import { DeviceInventoryItemResponseDto } from "../../redux/dtos/responses/devicesInventory";
@@ -66,70 +62,58 @@ export const EditForm = ({ deviceInventoryItem, deviceId }: Props) => {
   };
 
   return (
-    <Drawer>
-      <Drawer.Trigger as={Button} variant="ghost" color="warning" size="sm">
-        <BiEdit size={20} />
-      </Drawer.Trigger>
-      <Drawer.Overlay className="bg-surface-dark/70">
-        <Drawer.Panel className="max-h-screen h-screen text-foreground">
-          <div className="flex flex-row justify-between items-center gap-4 mb-4">
-            <Typography type="h6">Изменение расходника на складе</Typography>
-            <Drawer.DismissTrigger
-              as={IconButton}
-              size="sm"
-              variant="ghost"
-              isCircular
-            >
-              <CgClose size={16} />
-            </Drawer.DismissTrigger>
-          </div>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="h-full flex flex-col gap-4"
-          >
-            <FormInput
-              id="quantity"
-              label="Количество"
-              type="number"
-              {...register("quantity")}
-              error={errors.quantity}
-            />
+    <SideBar
+      triggerConent={<BiEdit size={20} />}
+      title="Изменение расходника на складе"
+      color="warning"
+    >
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="h-full max-h-full flex flex-col gap-4 justify-between"
+      >
+        <div className="h-full max-h-full flex flex-col gap-4 overflow-y-auto">
+          <FormInput
+            id="quantity"
+            label="Количество"
+            type="number"
+            {...register("quantity")}
+            error={errors.quantity}
+          />
 
-            <FormDatePicker
-              id="incomingDate"
-              name="incomingDate"
-              label="Дата поступления"
-              control={control}
-            />
+          <FormDatePicker
+            id="incomingDate"
+            name="incomingDate"
+            label="Дата поступления"
+            control={control}
+          />
 
-            <FormInput
-              id="purchasePrice"
-              label="Закупочная цена"
-              type="number"
-              {...register("purchasePrice")}
-              error={errors.purchasePrice}
-            />
+          <FormInput
+            id="purchasePrice"
+            label="Закупочная цена"
+            type="number"
+            {...register("purchasePrice")}
+            error={errors.purchasePrice}
+          />
 
-            <FormInput
-              id="retailPrice"
-              label="Розничная цена"
-              type="number"
-              {...register("retailPrice")}
-              error={errors.retailPrice}
-            />
+          <FormInput
+            id="retailPrice"
+            label="Розничная цена"
+            type="number"
+            {...register("retailPrice")}
+            error={errors.retailPrice}
+          />
+        </div>
 
-            <Button
-              variant="outline"
-              isFullWidth
-              className="text-foreground"
-              onClick={() => clearErrors()}
-            >
-              {isLoading && <Spinner size="sm" />}
-              Изменить
-            </Button>
-          </form>
-        </Drawer.Panel>
-      </Drawer.Overlay>
-    </Drawer>
+        <Button
+          variant="outline"
+          isFullWidth
+          className="text-foreground"
+          onClick={() => clearErrors()}
+        >
+          {isLoading && <Spinner size="sm" />}
+          Изменить
+        </Button>
+      </form>
+    </SideBar>
   );
 };

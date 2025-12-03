@@ -1,5 +1,6 @@
 import { Input } from "@material-tailwind/react";
 import { GridApi } from "ag-grid-community";
+import clsx from "clsx";
 
 interface DataGridQuickFilterProps {
   api: GridApi | null;
@@ -19,7 +20,7 @@ export const DataGridQuickFilter = ({
       type="text"
       placeholder="Быстрый поиск..."
       onChange={handleChange}
-      className={className}
+      className={clsx("w-full px-2 py-1", className)}
     />
   );
 };

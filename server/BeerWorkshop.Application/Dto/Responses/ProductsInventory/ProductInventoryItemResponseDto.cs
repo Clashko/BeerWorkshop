@@ -9,6 +9,7 @@ public record ProductInventoryItemResponseDto(
     DateTime? OpeningDate,
     decimal PurchasePrice,
     decimal RetailPrice,
+    decimal PricePerQuantity,
     DateTime ManufactureDate,
     int ExpirationTime,
     ExpirationMeasure ExpirationMeasure,

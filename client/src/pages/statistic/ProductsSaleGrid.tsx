@@ -70,7 +70,7 @@ export const ProductsSaleGrid = () => {
   ];
 
   return (
-    <Card className="bg-surface h-full">
+    <Card className="flex-2 bg-surface min-h-[400px] ag-theme-material">
       <DataGrid data={rowData} columns={columns} />
     </Card>
   );

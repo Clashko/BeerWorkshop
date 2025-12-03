@@ -10,22 +10,19 @@ export const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <Card className="relative w-[800px] h-[500px] bg-surface shadow-all-lg overflow-hidden">
-      <div className="absolute w-full h-full flex flex-row">
-        <div className="w-1/2 h-full flex items-center justify-center">
-          <LoginForm isLogin={isLogin} />
-        </div>
-        <div className="w-1/2 h-full flex items-center justify-center">
-          <RegisterForm isLogin={isLogin} />
-        </div>
+    <Card className="relative w-full h-full md:w-[600px] md:h-[400px] lg:w-[800px] lg:h-[500px] bg-surface shadow-all-lg overflow-hidden">
+      <div className="absolute w-full h-full flex flex-col md:flex-row">
+        <LoginForm isLogin={isLogin} />
+        <RegisterForm isLogin={isLogin} />
       </div>
 
       <div
         className={clsx(
-          "w-1/2 h-full bg-surface-light flex items-center justify-center transition-transform duration-700",
+          "w-full h-1/2 md:w-1/2 md:h-full bg-surface-light flex items-center justify-center transition-transform duration-700",
           {
-            "translate-x-full left-1/2": isLogin,
-            "translate-x-0 left-0": !isLogin,
+            "translate-y-full top-1/2 md:translate-x-full md:left-1/2 md:top-0 md:translate-y-0":
+              isLogin,
+            "translate-y-0 top-0 md:translate-x-0 md:left-0": !isLogin,
           }
         )}
       >

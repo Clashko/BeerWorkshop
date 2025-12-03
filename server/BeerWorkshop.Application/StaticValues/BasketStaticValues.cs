@@ -30,6 +30,7 @@ namespace BeerWorkshop.Application.StaticValues
         {
             {FormatEnum.Number, "№ {0:D3} от {1:dd.MM.yyyy}"},
             {FormatEnum.ItemRow, "{0}{1} * {2} BYN"},
+            {FormatEnum.ItemRowPricePerQuantity, " / {0}{1}"},
             {FormatEnum.ItemDiscountRow, "Скидка {0}%"},
             {FormatEnum.TotalDiscount, "{0}%"},
             {FormatEnum.TotalPrice, "{0} BYN"}

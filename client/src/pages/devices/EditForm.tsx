@@ -1,15 +1,8 @@
 import * as yup from "yup";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Button,
-  Drawer,
-  IconButton,
-  Spinner,
-  Typography,
-} from "@material-tailwind/react";
-import { CgClose } from "react-icons/cg";
-import { FormInput } from "../../components";
+import { Button, Spinner } from "@material-tailwind/react";
+import { FormInput, SideBar } from "../../components";
 import { toast } from "react-toastify";
 import { BiEdit } from "react-icons/bi";
 import { UpdateDeviceRequestDto } from "../../redux/dtos/requests/devices";
@@ -51,55 +44,43 @@ export const EditForm = ({ device }: Props) => {
   };
 
   return (
-    <Drawer>
-      <Drawer.Trigger as={Button} variant="ghost" color="warning" size="sm">
-        <BiEdit size={20} />
-      </Drawer.Trigger>
-      <Drawer.Overlay className="bg-surface-dark/70">
-        <Drawer.Panel className="max-h-screen h-screen text-foreground">
-          <div className="flex flex-row justify-between items-center gap-4 mb-4">
-            <Typography type="h6">Изменение расходника</Typography>
-            <Drawer.DismissTrigger
-              as={IconButton}
-              size="sm"
-              variant="ghost"
-              isCircular
-            >
-              <CgClose size={16} />
-            </Drawer.DismissTrigger>
-          </div>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="h-full flex flex-col gap-4"
-          >
-            <FormInput
-              id="name"
-              label="Наименование"
-              type="text"
-              {...register("name")}
-              error={errors.name}
-            />
+    <SideBar
+      triggerConent={<BiEdit size={20} />}
+      title="Изменение расходника"
+      color="warning"
+    >
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="h-full max-h-full flex flex-col gap-4 justify-between"
+      >
+        <div className="h-full max-h-full flex flex-col gap-4 overflow-y-auto">
+          <FormInput
+            id="name"
+            label="Наименование"
+            type="text"
+            {...register("name")}
+            error={errors.name}
+          />
 
-            <FormInput
-              id="shortName"
-              label="Короткое наименование"
-              type="text"
-              {...register("shortName")}
-              error={errors.shortName}
-            />
+          <FormInput
+            id="shortName"
+            label="Короткое наименование"
+            type="text"
+            {...register("shortName")}
+            error={errors.shortName}
+          />
+        </div>
 
-            <Button
-              variant="outline"
-              isFullWidth
-              className="text-foreground"
-              onClick={() => clearErrors()}
-            >
-              {isLoading && <Spinner size="sm" />}
-              Изменить
-            </Button>
-          </form>
-        </Drawer.Panel>
-      </Drawer.Overlay>
-    </Drawer>
+        <Button
+          variant="outline"
+          isFullWidth
+          className="text-foreground"
+          onClick={() => clearErrors()}
+        >
+          {isLoading && <Spinner size="sm" />}
+          Изменить
+        </Button>
+      </form>
+    </SideBar>
   );
 };

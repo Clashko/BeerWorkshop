@@ -12,6 +12,7 @@ import {
   GridApi,
 } from "ag-grid-community";
 import { forwardRef, Ref, useImperativeHandle, useRef } from "react";
+//import "./datagrid.module.css";
 
 ModuleRegistry.registerModules([
   AllCommunityModule,
@@ -40,11 +41,11 @@ function DataGridInner<TData>(
 
   const myTheme = themeMaterial.withParams({
     fontFamily: "inherit",
-    fontSize: "1em",
+    fontSize: "inherit",
     headerRowBorder: false,
     iconSize: 20,
     rowBorder: false,
-    spacing: 8,
+    spacing: 4,
     wrapperBorder: false,
     accentColor: themeMode === "light" ? "#2196F3" : "#1D63C5",
     backgroundColor: themeMode === "light" ? "#F2F2F2" : "#0A1624",
@@ -62,12 +63,17 @@ function DataGridInner<TData>(
     api: gridRef.current?.api ?? null,
   }));
 
+  const enhancedColumnDefs = columns.map((col) => ({
+    ...col,
+    cellClass: `flex items-center ${col.cellClass || ""}`,
+  }));
+
   return (
     <AgGridReact<TData>
       ref={gridRef}
       theme={myTheme}
       rowData={data}
-      columnDefs={columns}
+      columnDefs={enhancedColumnDefs}
       loading={isLoading}
       groupDisplayType="multipleColumns"
       animateRows

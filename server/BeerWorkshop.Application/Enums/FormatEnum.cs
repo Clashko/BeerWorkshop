@@ -4,6 +4,7 @@ namespace BeerWorkshop.Application.Enums
     {
         Number,
         ItemRow,
+        ItemRowPricePerQuantity,
         ItemDiscountRow,
         TotalDiscount,
         TotalPrice

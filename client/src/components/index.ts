@@ -14,3 +14,4 @@ export * from "./grid/DataGrid";
 export * from "./grid/DataGridQuickFilter";
 
 export * from "./chart/Chart";
+export * from "./sideBar/SideBar";

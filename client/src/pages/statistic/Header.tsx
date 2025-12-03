@@ -31,7 +31,7 @@ export const Header = () => {
   }, []);
 
   return (
-    <div className="flex flex-row gap-4 items-center justify-between">
+    <div className="w-full flex flex-row gap-4 items-center justify-between">
       <Typography type="h5" className="whitespace-nowrap">
         Статистика
       </Typography>

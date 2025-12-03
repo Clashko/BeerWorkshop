@@ -38,13 +38,15 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
         alignItems: "center",
         justifyContent: "start",
       },
-      spanRows: true, // группируем по продукту
+      spanRows: true,
+      minWidth:160
     },
     {
       headerName: "Дата поступления",
       valueGetter: (params) => params.data?.item.incomingDate,
       cellDataType: "date",
       sortable: true,
+      minWidth:190,
       filterParams: {
         browserDatePicker: true,
         comparator: (filterLocalDateAtMidnight: any, cellValue: any) => {
@@ -75,12 +77,14 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       valueGetter: (params) => params.data?.item.purchasePrice,
       sortable: true,
       filter: "agNumberColumnFilter",
+      minWidth:180,
     },
     {
       headerName: "Розничная цена",
       valueGetter: (params) => params.data?.item.retailPrice,
       sortable: true,
       filter: "agNumberColumnFilter",
+      minWidth:170,
     },
     {
       headerName: "Количество",
@@ -89,6 +93,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       },
       sortable: true,
       filter: "agTextColumnFilter",
+      minWidth:140,
     },
     {
       colId: "actions",
@@ -108,7 +113,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
   ];
 
   return (
-    <Card className="bg-surface h-full ag-theme-material">
+    <Card className="bg-surface h-full ag-theme-material text-sm">
       <DataGrid
         data={rows}
         columns={columns}

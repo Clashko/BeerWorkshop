@@ -1,10 +1,5 @@
 /* eslint-disable react-hooks/refs */
-import {
-  Button,
-  Popover,
-  Select,
-  Typography,
-} from "@material-tailwind/react";
+import { Button, Popover, Select, Typography } from "@material-tailwind/react";
 import { BiRefresh } from "react-icons/bi";
 import { DataGridQuickFilter, DataGridRef } from "../../components";
 import { RefObject, useEffect, useState } from "react";
@@ -36,18 +31,14 @@ export const Header = ({ gridRef, refreshChecks }: Props) => {
     console.log(periodType);
   }, [periodType]);
 
-  return (
-    <div className="flex flex-row gap-4 items-center justify-between">
-      <Typography type="h5" className="whitespace-nowrap">
-        Чеки
-      </Typography>
-
-      <DataGridQuickFilter api={gridRef.current?.api ?? null} />
-
+  const renderButtons = () => {
+    return (
       <Popover>
-        <Popover.Trigger as={Button} variant="ghost" size="md">
-          <BiRefresh size={26} />
-          Обновить
+        <Popover.Trigger as={Button} variant="ghost" className="p-2 sm:p-1">
+          <div className="flex flex-row gap-2 items-center text-foreground">
+            <BiRefresh size={20} />
+            <span className="hidden sm:block">Обновить</span>
+          </div>
         </Popover.Trigger>
         <Popover.Content className="max-w-sm p-4 z-[9999] bg-surface border border-dashed border-secondary">
           <div className="flex flex-col gap-4">
@@ -114,6 +105,17 @@ export const Header = ({ gridRef, refreshChecks }: Props) => {
           <Popover.Arrow />
         </Popover.Content>
       </Popover>
+    );
+  };
+
+  return (
+    <div className="w-full flex flex-col sm:flex-row gap-2 items-center">
+      <div className="w-full sm:w-auto flex flex-row gap-2 justify-between">
+        <Typography type="h5">Чеки</Typography>
+        <div className="flex sm:hidden flex-row gap-2">{renderButtons()}</div>
+      </div>
+      <DataGridQuickFilter api={gridRef.current?.api ?? null} />
+      <div className="hidden sm:flex flex-row gap-2">{renderButtons()}</div>
     </div>
   );
 };

@@ -43,6 +43,7 @@ interface BasketGridRow {
   quantity: number;
   unitOfMeasure: UnitOfMeasureType;
   price: number;
+  pricePerQuantity: number;
   discount: number | null;
 }
 
@@ -84,6 +85,7 @@ export const BasketGrid = ({
       quantity: p.quantity,
       unitOfMeasure: p.unitOfMeasure,
       price: p.price,
+      pricePerQuantity: p.pricePerQuantity,
       discount: p.discount,
     })),
     ...basketDevices.flatMap((p) => ({
@@ -93,6 +95,7 @@ export const BasketGrid = ({
       quantity: p.quantity,
       unitOfMeasure: p.unitOfMeasure,
       price: p.price,
+      pricePerQuantity: p.pricePerQuantity,
       discount: p.discount,
     })),
   ];
@@ -108,14 +111,14 @@ export const BasketGrid = ({
       },
       spanRows: true,
       filter: "agTextColumnFilter",
-      minWidth: 160,
+      minWidth: 140,
     },
     {
       headerName: "Наименование",
       valueGetter: ({ data }) => data!.name,
       sortable: true,
       filter: "agTextColumnFilter",
-      minWidth: 190,
+      minWidth: 160,
     },
     {
       headerName: "Количество",
@@ -126,14 +129,25 @@ export const BasketGrid = ({
       },
       sortable: true,
       filter: "agTextColumnFilter",
-      minWidth: 170,
+      minWidth: 140,
     },
     {
       headerName: "Цена",
       valueGetter: ({ data }) => data!.price,
       sortable: true,
       filter: "agNumberColumnFilter",
-      minWidth: 130,
+      minWidth: 100,
+    },
+    {
+      headerName: "Цена за",
+      valueGetter: ({ data }) => {
+        return `${data!.pricePerQuantity} ${
+          UnitOfMeasureTableDisplay[data!.unitOfMeasure]
+        }`;
+      },
+      sortable: true,
+      filter: "agTextColumnFilter",
+      minWidth: 140,
     },
     {
       headerName: "Скидка",
@@ -150,7 +164,7 @@ export const BasketGrid = ({
       },
       sortable: true,
       filter: "agTextColumnFilter",
-      minWidth: 140,
+      minWidth: 110,
     },
     {
       colId: "actions",
@@ -179,8 +193,9 @@ export const BasketGrid = ({
   const calculateTotalAmount = (rows: BasketRow[]): number =>
     rows.reduce((sum, row) => {
       const discountFactor = row.discount ? 1 - row.discount / 100 : 1;
-      const rowTotal = row.price * row.quantity;
-      const rowTotalWithDiscount = row.price * row.quantity * discountFactor;
+      const rowTotal = (row.quantity / row.pricePerQuantity) * row.price;
+      const rowTotalWithDiscount =
+        (row.quantity / row.pricePerQuantity) * row.price * discountFactor;
       return (
         sum +
         (useTotalDiscount
@@ -296,16 +311,10 @@ export const BasketGrid = ({
   };
 
   return (
-    <Card className="h-full w-1/2 flex flex-col gap-2 bg-surface">
-      <div className="w-full p-5">
+    <div className="h-full w-full flex flex-col gap-2">
+      <div className="w-full p-2 flex flex-row justify-between">
         <Typography type="lead">Корзина</Typography>
-      </div>
-      <div className="h-full px-2">
-        <Card className="h-full border-surface-light">
-          <DataGrid data={rows} columns={columns} />
-        </Card>
-      </div>
-      <div className="w-full flex flex-row gap-2 p-4 items-center">
+
         <div className="flex flex-row gap-2 items-center">
           <Checkbox
             id="totalDiscount"
@@ -325,55 +334,60 @@ export const BasketGrid = ({
             Добавить общую скидку?
           </Typography>
         </div>
+      </div>
+      <Card className="h-full border-surface-light text-sm ag-theme-material">
+        <DataGrid data={rows} columns={columns} />
+      </Card>
+      <div
+        className={clsx(
+          "w-full flex flex-col gap-2 items-start justify-center",
+          {
+            hidden: !useTotalDiscount,
+          }
+        )}
+      >
+        <div className="flex flex-row gap-2 items-center">
+          <Typography className="whitespace-nowrap">Общая скидка: </Typography>
+          <div className="w-20">
+            <Input
+              type="number"
+              className="border-primary px-2 py-1"
+              value={totalDiscount}
+              onChange={handleChangeDiscount}
+            />
+          </div>
+          <Typography className="whitespace-nowrap">%</Typography>
+        </div>
 
-        <div
-          className={clsx(
-            "w-full flex flex-row gap-4 items-center justify-center",
-            {
-              hidden: !useTotalDiscount,
+        <div className="flex flex-row gap-2 items-center">
+          <Typography className="whitespace-nowrap">
+            Тип калькуляции скидки:
+          </Typography>
+          <Select
+            size="sm"
+            value={String(discountCalculatorType)}
+            onValueChange={(val) =>
+              setDiscountCalculatorType(Number(val) as DiscountCalculatorType)
             }
-          )}
-        >
-          <div className="flex flex-row gap-2 items-center">
-            <div className="w-20">
-              <Input
-                size="sm"
-                type="number"
-                className="border-primary"
-                value={totalDiscount}
-                onChange={handleChangeDiscount}
-              />
-            </div>
-            <Typography className="whitespace-nowrap">%</Typography>
-          </div>
-
-          <div className="flex flex-row gap-2 items-center">
-            <Typography className="whitespace-nowrap">
-              Тип калькуляции скидки:
-            </Typography>
-            <Select
-              size="sm"
-              value={String(discountCalculatorType)}
-              onValueChange={(val) =>
-                setDiscountCalculatorType(Number(val) as DiscountCalculatorType)
-              }
-            >
-              <Select.Trigger className="border-primary" />
-              <Select.List>
-                {DiscountCalculatorTypeOptions.map(({ label, value }) => (
-                  <Select.Option key={value} value={String(value)}>
-                    {label}
-                  </Select.Option>
-                ))}
-              </Select.List>
-            </Select>
-          </div>
+          >
+            <Select.Trigger className="border-primary whitespace-nowrap px-2 py-1" />
+            <Select.List>
+              {DiscountCalculatorTypeOptions.map(({ label, value }) => (
+                <Select.Option key={value} value={String(value)}>
+                  {label}
+                </Select.Option>
+              ))}
+            </Select.List>
+          </Select>
         </div>
       </div>
-      <Button className="m-4 mt-0 flex flex-row gap-2 items-center" onClick={handleRealize}>
+      <Button
+        className="mt-0 flex flex-row gap-2 items-center"
+        onClick={handleRealize}
+      >
         {isLoading && <Spinner size="sm" />}
         Рассчитать - Итоговая сумма: {totalAmount.toFixed(2)}
       </Button>
-    </Card>
+    </div>
   );
 };

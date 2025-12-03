@@ -1,11 +1,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { ApiResponseDto } from "../dtos/responses/apiResponseDto";
 import {
+  CreateProductsDeliveryResponseDto,
   ProductInventoryItemResponseDto,
   ProductInventoryResponseDto,
 } from "../dtos/responses/productsInventory";
 import {
-  CreateProductInventoryItemRequestDto,
+  CreateProductsDeliveryRequestDto,
   UpdateProductInventoryItemRequestDto,
 } from "../dtos/requests/productsInventory";
 import {
@@ -13,7 +14,6 @@ import {
   setProductsInventory,
   updateProductInventoryItem,
 } from "../features/productsInventorySlice";
-import { ProductResponseDto } from "../dtos/responses/producs";
 import baseQueryWithReauth from "./baseQueryWithReauth";
 
 export const productsInventoryApi = createApi({
@@ -36,25 +36,17 @@ export const productsInventoryApi = createApi({
       },
     }),
     createProductsInventoryItem: builder.mutation<
-      ApiResponseDto<ProductInventoryItemResponseDto>,
-      {
-        product: ProductResponseDto;
-        body: CreateProductInventoryItemRequestDto;
-      }
+      ApiResponseDto<CreateProductsDeliveryResponseDto>,
+      CreateProductsDeliveryRequestDto[]
     >({
-      query: ({ body }) => ({
+      query: (body) => ({
         url: "ProductsInventory",
         method: "POST",
         body,
       }),
       async onQueryStarted(_args, { dispatch, queryFulfilled }) {
         await queryFulfilled.then(async (result) => {
-          dispatch(
-            addProductInventoryItem({
-              product: _args.product,
-              item: result.data.data,
-            })
-          );
+          dispatch(addProductInventoryItem(result.data.data));
         });
       },
     }),

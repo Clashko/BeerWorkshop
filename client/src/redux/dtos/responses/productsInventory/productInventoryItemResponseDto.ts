@@ -6,6 +6,7 @@ export interface ProductInventoryItemResponseDto {
   incomingDate: Date;
   purchasePrice: number;
   retailPrice: number;
+  pricePerQuantity: number;
   manufactureDate: Date;
   expirationTime: number;
   expirationMeasure: ExpirationMeasureType;

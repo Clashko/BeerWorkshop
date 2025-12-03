@@ -54,7 +54,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
         justifyContent: "start",
       },
       spanRows: true,
-      minWidth: 180,
+      minWidth: 150,
     },
     {
       headerName: "Наименование",
@@ -65,14 +65,14 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
         justifyContent: "start",
       },
       spanRows: true,
-      minWidth: 200,
+      minWidth: 160,
     },
     {
       headerName: "Дата поступления",
       valueGetter: (params) => params.data?.item.incomingDate,
       cellDataType: "date",
       sortable: true,
-      minWidth: 230,
+      minWidth: 190,
       filterParams: {
         browserDatePicker: true,
         comparator: (filterLocalDateAtMidnight: any, cellValue: any) => {
@@ -102,7 +102,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       headerName: "Дата производства",
       valueGetter: (params) => params.data?.item.manufactureDate,
       cellDataType: "date",
-      minWidth: 230,
+      minWidth: 190,
       sortable: true,
       filterParams: {
         browserDatePicker: true,
@@ -133,7 +133,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       headerName: "Дата вскрытия",
       valueGetter: (params) => params.data?.item.openingDate,
       cellDataType: "date",
-      minWidth: 250,
+      minWidth: 200,
       sortable: true,
       filterParams: {
         browserDatePicker: true,
@@ -174,7 +174,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
         return `${params.data.item.quantity} ${unit}`;
       },
       sortable: true,
-      minWidth: 180,
+      minWidth: 140,
       filter: "agTextColumnFilter",
     },
     {
@@ -187,7 +187,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
         return `${params.data.item.expirationTime} ${unit}`;
       },
       sortable: true,
-      minWidth: 200,
+      minWidth: 160,
       filter: "agTextColumnFilter",
     },
     {
@@ -198,7 +198,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
             .expirationCountingDateType as ExpirationCountingDateType
         ],
       sortable: true,
-      minWidth: 300,
+      minWidth: 260,
       filter: "agTextColumnFilter",
     },
     {
@@ -247,7 +247,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
   };
 
   return (
-    <Card className="bg-surface h-full ag-theme-material">
+    <Card className="bg-surface h-full ag-theme-material text-sm">
       <DataGrid
         ref={gridRef}
         data={rows}

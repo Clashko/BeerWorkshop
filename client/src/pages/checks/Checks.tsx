@@ -37,7 +37,7 @@ export const Checks = () => {
   };
 
   return (
-    <div className="h-full flex flex-col gap-2">
+    <div className="w-full h-full flex flex-col gap-2">
       <Header gridRef={gridRef} refreshChecks={refreshChecks} />
 
       <Grid gridRef={gridRef} data={checks} isLoading={isLoading} />

@@ -53,62 +53,64 @@ export const LoginForm = ({ isLogin }: Props) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className={clsx(
-        "flex flex-col gap-4 w-4/5 transition-opacity duration-700",
-        {
-          "opacity-100": isLogin,
-          "opacity-0": !isLogin,
-        }
-      )}
-    >
-      <Typography type="h4" className="text-center">
-        Вход
-      </Typography>
-      <div className="flex flex-col gap-2">
-        <Input
-          id="login"
-          placeholder="Логин"
-          type="text"
-          className="border-primary-dark"
-          {...register("login")}
-          isError={errors.login != undefined}
-        />
-
-        {errors.login && (
-          <Typography color="error" type="small">
-            {errors.login.message}
-          </Typography>
+    <div className="w-full h-1/2 md:w-1/2 md:h-full flex items-center justify-center">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className={clsx(
+          "flex flex-col gap-2 lg:gap-4 md:w-4/5 transition-opacity duration-700",
+          {
+            "opacity-100": isLogin,
+            "opacity-0": !isLogin,
+          }
         )}
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Input
-          id="password"
-          placeholder="Пароль"
-          type="password"
-          className="border-primary-dark"
-          {...register("password")}
-          isError={errors.password != undefined}
-        />
-
-        {errors.password && (
-          <Typography color="error" type="small">
-            {errors.password.message}
-          </Typography>
-        )}
-      </div>
-
-      <Button
-        variant="outline"
-        color="primary"
-        className="text-foreground flex flex-row gap-2 items-center"
-        onClick={() => clearErrors()}
       >
-        {isLoginLoading && <Spinner size="sm" />}
-        Войти
-      </Button>
-    </form>
+        <Typography type="h4" className="text-center">
+          Вход
+        </Typography>
+        <div className="flex flex-col gap-2">
+          <Input
+            id="loginLogin"
+            placeholder="Логин"
+            type="text"
+            className="border-primary-dark"
+            {...register("login")}
+            isError={errors.login != undefined}
+          />
+
+          {errors.login && (
+            <Typography color="error" type="small">
+              {errors.login.message}
+            </Typography>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Input
+            id="passwordLogin"
+            placeholder="Пароль"
+            type="password"
+            className="border-primary-dark "
+            {...register("password")}
+            isError={errors.password != undefined}
+          />
+
+          {errors.password && (
+            <Typography color="error" type="small">
+              {errors.password.message}
+            </Typography>
+          )}
+        </div>
+
+        <Button
+          variant="outline"
+          color="primary"
+          className="text-foreground flex flex-row gap-2 items-center"
+          onClick={() => clearErrors()}
+        >
+          {isLoginLoading && <Spinner size="sm" />}
+          Войти
+        </Button>
+      </form>
+    </div>
   );
 };

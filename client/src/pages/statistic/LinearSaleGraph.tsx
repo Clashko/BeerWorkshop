@@ -53,7 +53,7 @@ export const LinearSaleGraph = () => {
       yKey="avgSales"
       yName="Среднее количество продаж"
       title="Среднее количество продаж по дням"
-      className="w-1/2"
+      className="flex-2 lg:flex-1"
     />
   );
 };

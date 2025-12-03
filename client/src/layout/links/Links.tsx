@@ -8,37 +8,37 @@ import { BsGraphUp } from "react-icons/bs";
 
 export const LINKS = [
   {
-    icon: <IoBeer size={22} />,
+    icon: <IoBeer className="w-5 h-5 lg:w-6 lg:h-6" />,
     title: "Продукты",
     href: routes.products,
   },
   {
-    icon: <TbTruckLoading size={22} />,
+    icon: <TbTruckLoading className="w-5 h-5 lg:w-6 lg:h-6" />,
     title: "Склад продуктов",
     href: routes.productsInventory,
   },
   {
-    icon: <FaInbox size={22} />,
+    icon: <FaInbox className="w-5 h-5 lg:w-6 lg:h-6" />,
     title: "Расходники",
     href: routes.devices,
   },
   {
-    icon: <FaBoxes size={22} />,
+    icon: <FaBoxes className="w-5 h-5 lg:w-6 lg:h-6" />,
     title: "Склад расходников",
     href: routes.devicesInventory,
   },
   {
-    icon: <PiScribbleBold size={22} />,
+    icon: <PiScribbleBold className="w-5 h-5 lg:w-6 lg:h-6" />,
     title: "Списание",
     href: routes.writeoff,
   },
   {
-    icon: <FaMoneyCheck size={22} />,
+    icon: <FaMoneyCheck className="w-5 h-5 lg:w-6 lg:h-6" />,
     title: "Чеки",
     href: routes.checks,
   },
   {
-    icon: <BsGraphUp size={22} />,
+    icon: <BsGraphUp className="w-5 h-5 lg:w-6 lg:h-6" />,
     title: "Статистика",
     href: routes.statistic,
   },
@@ -46,7 +46,7 @@ export const LINKS = [
 
 export const BOTTOM_LINKS = [
   {
-    icon: <MdOutlineLocalGroceryStore size={22} />,
+    icon: <MdOutlineLocalGroceryStore className="w-5 h-5 lg:w-6 lg:h-6" />,
     title: "Корзина",
     href: routes.sales,
   },

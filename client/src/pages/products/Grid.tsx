@@ -29,12 +29,15 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       field: "name",
       sortable: true,
       filter: "agTextColumnFilter",
+      cellClass: "",
+      minWidth:180
     },
     {
       headerName: "Короткое наименование",
       field: "shortName",
       sortable: true,
       filter: "agTextColumnFilter",
+      minWidth:260
     },
     {
       headerName: "Тип продукта",
@@ -42,6 +45,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
         ProductTypeDisplay[params.data.productType as ProductType],
       sortable: true,
       filter: "agTextColumnFilter",
+      minWidth:170
     },
     {
       headerName: "Еденицы измерения",
@@ -49,6 +53,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
         UnitOfMeasureDisplay[params.data.unitOfMeasure as UnitOfMeasureType],
       sortable: true,
       filter: "agTextColumnFilter",
+      minWidth:220
     },
     {
       colId: "actions",
@@ -79,7 +84,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
   };
 
   return (
-    <Card className="bg-surface h-full ag-theme-material">
+    <Card className="bg-surface h-full ag-theme-material text-sm">
       <DataGrid
         ref={gridRef}
         data={data}

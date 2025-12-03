@@ -1,19 +1,16 @@
 using BeerWorkshop.Application.Dto.Responses;
 using BeerWorkshop.Application.Dto.Responses.WriteOff;
-using BeerWorkshop.Application.Helpers;
 using BeerWorkshop.Application.Models;
 using BeerWorkshop.Application.Services.Interfaces;
 using BeerWorkshop.Database.Contexts;
-using BeerWorkshop.Database.Entities;
 using BeerWorkshop.Database.Entities.Products;
 using BeerWorkshop.Database.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace BeerWorkshop.Application.MediatR.WriteOff.Delete;
 
-public class DeleteExpiringProductHandler(BeerWorkshopContext context, ICheckGenerator checkGenerator, IConfiguration configuration) : IRequestHandler<DeleteExpiringProductCommand, MediatrResponseDto<WriteOffResponseDto>>
+public class DeleteExpiringProductHandler(BeerWorkshopContext context, ICheckGenerator checkGenerator) : IRequestHandler<DeleteExpiringProductCommand, MediatrResponseDto<WriteOffResponseDto>>
 {
     public async Task<MediatrResponseDto<WriteOffResponseDto>> Handle(DeleteExpiringProductCommand request, CancellationToken cancellationToken)
     {
@@ -57,7 +54,7 @@ public class DeleteExpiringProductHandler(BeerWorkshopContext context, ICheckGen
 
                 statisticRows.Add(statistic);
 
-                checkRows.Add(new CheckRow(expiringProduct.Product.Name, expiringProduct.Product.UnitOfMeasure, expiringProduct.Quantity, expiringProduct.PurchasePrice, totalAmount));
+                checkRows.Add(new CheckRow(expiringProduct.Product.Name, expiringProduct.Product.UnitOfMeasure, expiringProduct.Quantity, expiringProduct.PurchasePrice, expiringProduct.PricePerQuantity, totalAmount));
 
                 totalPrice += totalAmount;
 
@@ -66,7 +63,7 @@ public class DeleteExpiringProductHandler(BeerWorkshopContext context, ICheckGen
 
             await context.SaveChangesAsync(cancellationToken);
 
-            var check = await GenerateAndSaveCheck($"{user.LastName} {user.FirstName[0].ToString().ToUpper()}.{user.SurName[0].ToString().ToUpper()}", checkRowGuid, checkRows, totalPrice, transactionDate);
+            var check = await checkGenerator.GenerateAndSaveCheckAsync(checkRowGuid, checkRows, totalPrice, transactionDate, TransactionType.WriteOff, user);
 
             await context.ProductsStatistic.AddRangeAsync(statisticRows, cancellationToken);
 
@@ -83,27 +80,5 @@ public class DeleteExpiringProductHandler(BeerWorkshopContext context, ICheckGen
             Console.WriteLine(ex.Message);
             return MediatrResponseDto<WriteOffResponseDto>.Failure($"Error while deleting product: {ex.Message}");
         }
-    }
-    private async Task<string> GenerateAndSaveCheck(string cashier, Guid checkRowGuid, List<CheckRow> checkRows, decimal totalPrice, DateTime transactionDate)
-    {
-        var check = checkGenerator.GenerateCheck(new CheckModel(cashier, checkRows, totalPrice), TransactionType.WriteOff);
-
-        var path = configuration.CreateCheckDirectoriesAndGeneratePath(check.OrderNumber, transactionDate);
-
-        File.WriteAllText(path, check.CheckContent);
-
-        context.Checks.Add(new CheckEntity()
-        {
-            Id = checkRowGuid,
-            Path = path,
-            TransactionDate = transactionDate,
-            TotalAmount = totalPrice,
-            TransactionType = TransactionType.WriteOff,
-            OrderNumber = check.OrderNumber,
-        });
-
-        await context.SaveChangesAsync();
-
-        return check.CheckContent;
     }
 }

@@ -8,6 +8,7 @@ public record UpdateProductInventoryItemRequestDto(
     DateTime? OpeningDate,
     decimal PurchasePrice,
     decimal RetailPrice,
+    decimal PricePerQuantity,
     DateTime ManufactureDate,
     int ExpirationTime,
     ExpirationMeasure ExpirationMeasure,

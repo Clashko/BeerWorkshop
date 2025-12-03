@@ -258,6 +258,9 @@ namespace BeerWorkshop.Database.Migrations
                     b.Property<DateTime?>("OpeningDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal>("PricePerQuantity")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("TEXT");
 

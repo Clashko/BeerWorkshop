@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, Card, Typography } from "@material-tailwind/react";
+import { Button, Card } from "@material-tailwind/react";
 import { ColDef } from "ag-grid-community";
 import { useAppSelector } from "../../redux/store/store";
 import { toast } from "react-toastify";
@@ -53,12 +53,14 @@ export const DevicesGrid = ({ basketDevices, setBasketDevices }: Props) => {
       },
       spanRows: true,
       filter: "agTextColumnFilter",
+      minWidth: 160,
     },
     {
       headerName: "Стоимость",
       valueGetter: (params) => params.data?.item.retailPrice,
       sortable: true,
       filter: "agNumberColumnFilter",
+      minWidth: 130,
     },
     {
       headerName: "Количество",
@@ -67,6 +69,7 @@ export const DevicesGrid = ({ basketDevices, setBasketDevices }: Props) => {
       },
       sortable: true,
       filter: "agTextColumnFilter",
+      minWidth: 140,
     },
     {
       colId: "actions",
@@ -87,31 +90,31 @@ export const DevicesGrid = ({ basketDevices, setBasketDevices }: Props) => {
   };
 
   return (
-    <Card className="bg-surface flex flex-col gap-2 h-1/2">
-      <div className="flex flex-row gap-4 items-center justify-between p-4">
-        <Typography type="lead">Расходники</Typography>
+    <div className="bg-surface flex flex-col gap-2 h-full w-full">
+      <div className="w-full flex flex-row gap-4 items-center justify-between">
         <DataGridQuickFilter
           api={gridRef.current?.api ?? null}
           className="border-primary px-2 py-1"
         />
         <Button
           variant="ghost"
-          size="md"
           onClick={refreshInventory}
-          className="px-4 py-1"
+          className="p-2 sm:p-1"
         >
           <div className="flex flex-row gap-2 items-center text-foreground">
-            <BiRefresh size={26} />
-            Обновить
+            <BiRefresh size={20} />
+            <span className="hidden sm:block">Обновить</span>
           </div>
         </Button>
       </div>
-      <DataGrid
-        data={rows}
-        columns={columns}
-        isLoading={isLoading}
-        ref={gridRef}
-      />
-    </Card>
+      <Card className="w-full h-full border border-surface-light text-sm ag-theme-material">
+        <DataGrid
+          data={rows}
+          columns={columns}
+          isLoading={isLoading}
+          ref={gridRef}
+        />
+      </Card>
+    </div>
   );
 };

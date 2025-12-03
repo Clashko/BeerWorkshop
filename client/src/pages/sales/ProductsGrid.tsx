@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, Card, Typography } from "@material-tailwind/react";
+import { Button, Card } from "@material-tailwind/react";
 import { ColDef } from "ag-grid-community";
 import { InventoryRow } from "../productsInventory/Grid";
 import {
@@ -49,7 +49,7 @@ export const ProductsGrid = ({ basketProducts, setBasketProducts }: Props) => {
   const columns: ColDef<InventoryRow>[] = [
     {
       headerName: "Наименование",
-      valueGetter: (params) => params.data?.product.name,
+      valueGetter: ({ data }) => data!.product.name,
       cellStyle: {
         display: "flex",
         alignItems: "center",
@@ -57,12 +57,27 @@ export const ProductsGrid = ({ basketProducts, setBasketProducts }: Props) => {
       },
       spanRows: true,
       filter: "agTextColumnFilter",
+      minWidth: 160,
     },
     {
       headerName: "Стоимость",
-      valueGetter: (params) => params.data?.item.retailPrice,
+      valueGetter: ({ data }) => data!.item.retailPrice,
       sortable: true,
       filter: "agNumberColumnFilter",
+      minWidth: 130,
+    },
+    {
+      headerName: "Стоимость за",
+      valueGetter: ({ data }) => {
+        const unit =
+          UnitOfMeasureTableDisplay[
+            data!.product.unitOfMeasure as UnitOfMeasureType
+          ];
+        return `${data!.item.pricePerQuantity} ${unit}`;
+      },
+      sortable: true,
+      filter: "agTextColumnFilter",
+      minWidth: 150,
     },
     {
       headerName: "Количество",
@@ -75,6 +90,7 @@ export const ProductsGrid = ({ basketProducts, setBasketProducts }: Props) => {
       },
       sortable: true,
       filter: "agTextColumnFilter",
+      minWidth: 150,
     },
     {
       colId: "actions",
@@ -98,31 +114,31 @@ export const ProductsGrid = ({ basketProducts, setBasketProducts }: Props) => {
   };
 
   return (
-    <Card className="bg-surface flex flex-col gap-2 h-1/2">
-      <div className="flex flex-row gap-4 items-center justify-between p-4">
-        <Typography type="lead">Продукты</Typography>
+    <div className="bg-surface flex flex-col gap-2 h-full w-full">
+      <div className="w-full flex flex-row gap-4 items-center justify-between">
         <DataGridQuickFilter
           api={gridRef.current?.api ?? null}
           className="border-primary px-2 py-1"
         />
         <Button
           variant="ghost"
-          size="md"
           onClick={refreshInventory}
-          className="px-4 py-1"
+          className="p-2 sm:p-1"
         >
           <div className="flex flex-row gap-2 items-center text-foreground">
-            <BiRefresh size={26} />
-            Обновить
+            <BiRefresh size={20} />
+            <span className="hidden sm:block">Обновить</span>
           </div>
         </Button>
       </div>
-      <DataGrid
-        data={rows}
-        columns={columns}
-        isLoading={isLoading}
-        ref={gridRef}
-      />
-    </Card>
+      <Card className="w-full h-full border border-surface-light text-sm ag-theme-material">
+        <DataGrid
+          data={rows}
+          columns={columns}
+          isLoading={isLoading}
+          ref={gridRef}
+        />
+      </Card>
+    </div>
   );
 };

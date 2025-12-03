@@ -46,6 +46,7 @@ export const AddProductDialog = ({ product, addProduct }: Props) => {
         quantity: quantity,
         unitOfMeasure: product.product.unitOfMeasure,
         price: product.item.retailPrice,
+        pricePerQuantity: product.item.pricePerQuantity,
         discount: useDiscount ? discount : null,
       });
     }

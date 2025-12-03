@@ -17,11 +17,11 @@ export const Devices = () => {
   const data = useAppSelector(selectDevices);
 
   useEffect(() => {
-    refreshProducts();
+    refreshDevices();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const refreshProducts = () => {
+  const refreshDevices = () => {
     readDevices()
       .unwrap()
       .then((result) => toast.info(result.message))
@@ -29,8 +29,8 @@ export const Devices = () => {
   };
 
   return (
-    <div className="h-full flex flex-col gap-2">
-      <Header gridRef={gridRef} refreshProducts={refreshProducts} />
+    <div className="w-full h-full max-h-full flex flex-col gap-2">
+      <Header gridRef={gridRef} refreshDevices={refreshDevices} />
 
       <Grid gridRef={gridRef} data={data} isLoading={isReadDevicesLoading} />
     </div>

@@ -14,6 +14,7 @@ public class ProductsInventoryEntity
 
     public decimal PurchasePrice { get; set; }
     public decimal RetailPrice { get; set; }
+    public decimal PricePerQuantity { get; set; }
 
     public DateTime ManufactureDate { get; set; }
     public DateTime? OpeningDate { get; set; }

@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store/store";
 import {
+  CreateDevicesDeliveryResponseDto,
   DeviceInventoryItemResponseDto,
   DeviceInventoryResponseDto,
 } from "../dtos/responses/devicesInventory";
-import { DeviceResponseDto } from "../dtos/responses/devices";
 
 interface DevicesInventoryState {
   devicesInventory: DeviceInventoryResponseDto[];
@@ -26,24 +26,21 @@ const devicesInventorySlice = createSlice({
     },
     addDeviceInventoryItem: (
       state,
-      action: PayloadAction<{
-        device: DeviceResponseDto;
-        item: DeviceInventoryItemResponseDto;
-      }>
+      action: PayloadAction<CreateDevicesDeliveryResponseDto>
     ) => {
-      const index = state.devicesInventory.findIndex(
-        (d) => d.device.id === action.payload.device.id
-      );
-      if (index !== -1) {
-        state.devicesInventory[index].inventoryItems.push(action.payload.item);
-      } else {
-        const newInventory: DeviceInventoryResponseDto = {
-          device: action.payload.device,
-          inventoryItems: [action.payload.item],
-        };
-
-        state.devicesInventory.push(newInventory);
-      }
+      action.payload.inventory.flatMap((item) => {
+        const index = state.devicesInventory.findIndex(
+          (d) => d.device.id === item.device.id
+        );
+        if (index !== -1) {
+          state.devicesInventory[index].inventoryItems = [
+            ...state.devicesInventory[index].inventoryItems,
+            ...item.inventoryItems,
+          ];
+        } else {
+          state.devicesInventory.push(item);
+        }
+      });
     },
     updateDeviceInventoryItem: (
       state,

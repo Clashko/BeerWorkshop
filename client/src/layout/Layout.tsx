@@ -13,7 +13,7 @@ export const Layout = () => {
     return <Navigate to={routes.login} state={{ from: location }} replace />;
 
   return (
-    <div className="h-screen max-h-screen flex flex-col bg-background text-foreground duration-200">
+    <div className="h-screen max-h-screen flex flex-col bg-background text-foreground duration-200 overflow-hidden">
       <Header />
       <Content />
     </div>

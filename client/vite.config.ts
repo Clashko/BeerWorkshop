@@ -1,15 +1,26 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-  optimizeDeps: {
-    include: ["redux-persist/lib/storage"],
+  base: "/client/",
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    outDir: "dist",
+    // cssMinify is disabled because of a bug in lightningcss with @material-tailwind/react beta version
+    cssMinify: false,
   },
   plugins: [
     react(),
     VitePWA({
+      base: "/client/",
+      filename: "manifest.webmanifest",
       registerType: "autoUpdate",
       injectRegister: "script",
       includeAssets: [
@@ -25,11 +36,13 @@ export default defineConfig({
       manifest: {
         name: "BeerWorkshop",
         short_name: "BeerWorkshop",
-        description: "BeerWorkshop application",
-        start_url: "/",
+        description: "BeerWorkshop draft drinks",
+        start_url: "/client/",
+        scope: "/client/",
         display: "standalone",
         background_color: "#ffffff",
         theme_color: "#000000",
+        lang: "ru",
         icons: [
           {
             src: "/assets/android-chrome-192x192.png",
@@ -59,11 +72,12 @@ export default defineConfig({
         globPatterns: ["**/*.{js, css, html, svg, png, ico}"],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
-        maximumFileSizeToCacheInBytes: 3000000,
+        maximumFileSizeToCacheInBytes: 5000000,
+        navigateFallback: "/client/index.html",
       },
       devOptions: {
         enabled: true,
-        navigateFallback: "index.html",
+        navigateFallback: "/client/index.html",
         suppressWarnings: true,
         type: "module",
       },

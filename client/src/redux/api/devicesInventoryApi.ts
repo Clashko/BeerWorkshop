@@ -1,11 +1,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { ApiResponseDto } from "../dtos/responses/apiResponseDto";
 import {
+  CreateDevicesDeliveryResponseDto,
   DeviceInventoryItemResponseDto,
   DeviceInventoryResponseDto,
 } from "../dtos/responses/devicesInventory";
 import {
-  CreateDeviceInventoryItemRequestDto,
+  CreateDevicesDeliveryRequestDto,
   UpdateDeviceInventoryItemRequestDto,
 } from "../dtos/requests/devicesInventory";
 import {
@@ -13,7 +14,6 @@ import {
   setDevicesInventory,
   updateDeviceInventoryItem,
 } from "../features/devicesInventorySlice";
-import { DeviceResponseDto } from "../dtos/responses/devices";
 import baseQueryWithReauth from "./baseQueryWithReauth";
 
 export const devicesInventoryApi = createApi({
@@ -36,25 +36,17 @@ export const devicesInventoryApi = createApi({
       },
     }),
     createDevicesInventoryItem: builder.mutation<
-      ApiResponseDto<DeviceInventoryItemResponseDto>,
-      {
-        device: DeviceResponseDto;
-        body: CreateDeviceInventoryItemRequestDto;
-      }
+      ApiResponseDto<CreateDevicesDeliveryResponseDto>,
+      CreateDevicesDeliveryRequestDto[]
     >({
-      query: ({ body }) => ({
+      query: (body) => ({
         url: "DevicesInventory",
         method: "POST",
         body,
       }),
       async onQueryStarted(_args, { dispatch, queryFulfilled }) {
         await queryFulfilled.then(async (result) => {
-          dispatch(
-            addDeviceInventoryItem({
-              device: _args.device,
-              item: result.data.data,
-            })
-          );
+          dispatch(addDeviceInventoryItem(result.data.data));
         });
       },
     }),

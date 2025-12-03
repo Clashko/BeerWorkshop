@@ -75,10 +75,12 @@ export const AllConfirmationDialog = ({
         color="error"
         size="sm"
         isLoading={isLoading}
-        className="flex flex-row gap-2 items-center"
+        className="flex flex-row gap-2 items-center p-2 sm:p-1"
       >
-        <MdDelete size={20} />
-        Удалить
+        <div className="flex flex-row gap-2 items-center">
+          <MdDelete size={20} />
+          <span className="hidden sm:block">Удалить</span>
+        </div>
       </Dialog.Trigger>
       <Dialog.Overlay className="bg-surface-dark/70">
         <Dialog.Content className="flex flex-col gap-4 text-foreground">

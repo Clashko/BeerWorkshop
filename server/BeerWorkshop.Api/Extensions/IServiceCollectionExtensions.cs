@@ -40,8 +40,8 @@ public static class IServiceCollectionExtensions
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-        services.AddTransient<ICheckNumberService, CheckNumberService>();
-        services.AddSingleton<ICheckGenerator, CheckGenerator>();
+        services.AddSingleton<ICheckNumberService, CheckNumberService>();
+        services.AddScoped<ICheckGenerator, CheckGenerator>();
 
         services.AddScoped<ITokenService, TokenService>();
 

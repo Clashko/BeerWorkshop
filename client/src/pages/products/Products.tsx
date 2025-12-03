@@ -29,7 +29,7 @@ export const Products = () => {
   };
 
   return (
-    <div className="h-full flex flex-col gap-2">
+    <div className="w-full h-full max-h-full flex flex-col gap-2">
       <Header gridRef={gridRef} refreshProducts={refreshProducts} />
 
       <Grid gridRef={gridRef} data={data} isLoading={isReadProductsLoading} />

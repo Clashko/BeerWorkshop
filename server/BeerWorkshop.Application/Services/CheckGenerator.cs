@@ -4,20 +4,46 @@ using BeerWorkshop.Application.Helpers;
 using BeerWorkshop.Application.Models;
 using BeerWorkshop.Application.Services.Interfaces;
 using BeerWorkshop.Application.StaticValues;
+using BeerWorkshop.Database.Contexts;
+using BeerWorkshop.Database.Entities;
+using BeerWorkshop.Database.Entities.Users;
 using BeerWorkshop.Database.Enums;
 using Microsoft.Extensions.Configuration;
 
 namespace BeerWorkshop.Application.Services;
 
-public class CheckGenerator(ICheckNumberService checkNumberService, IConfiguration configuration) : ICheckGenerator
+public class CheckGenerator(BeerWorkshopContext context, ICheckNumberService checkNumberService, IConfiguration configuration) : ICheckGenerator
 {
+    public async Task<string> GenerateAndSaveCheckAsync(Guid checkRowGuid, List<CheckRow> checkRows, decimal totalPrice, DateTime transactionDate, TransactionType transactionType, UserEntity cashier)
+    {
+        var check = GenerateCheck(new CheckModel(cashier, checkRows, totalPrice), transactionType);
+
+        var path = configuration.CreateCheckDirectoriesAndGeneratePath(check.OrderNumber, transactionDate);
+
+        File.WriteAllText(path, check.CheckContent);
+
+        context.Checks.Add(new CheckEntity()
+        {
+            Id = checkRowGuid,
+            Path = path,
+            TransactionDate = transactionDate,
+            TotalAmount = totalPrice,
+            TransactionType = transactionType,
+            OrderNumber = check.OrderNumber,
+        });
+
+        await context.SaveChangesAsync();
+
+        return check.CheckContent;
+    }
+
     public CheckGenerationResult GenerateCheck(CheckModel checkModel, TransactionType transactionType)
     {
         var parameters = checkNumberService.GetParameters();
 
         var sb = new StringBuilder();
         AppendHeaderSection(sb);
-        AppendReatilDocumentSection(sb, transactionType, parameters, checkModel.Cashier);
+        AppendReatilDocumentSection(sb, transactionType, parameters, $"{checkModel.Cashier.LastName} {checkModel.Cashier.FirstName[0].ToString().ToUpper()}.{checkModel.Cashier.SurName[0].ToString().ToUpper()}.");
         AppendItemsSection(sb, checkModel.DiscountCalculatorType, checkModel.Items);
         AppendTotalDiscountSection(sb, checkModel.DiscountCalculatorType, checkModel.TotalDiscount);
         AppendTotalPriceSection(sb, checkModel.TotalPrice, transactionType);
@@ -64,6 +90,11 @@ public class CheckGenerator(ICheckNumberService checkNumberService, IConfigurati
         foreach (var item in items)
         {
             var summaryResult = string.Format(BasketStaticValues.Formats[FormatEnum.ItemRow], item.Quantity, BasketStaticValues.Measures[item.Measure], item.Price);
+            if (item.PricePerQuantity > 1)
+            {
+                summaryResult += string.Format(BasketStaticValues.Formats[FormatEnum.ItemRowPricePerQuantity], item.PricePerQuantity, BasketStaticValues.Measures[item.Measure]);
+            }
+
             sb.AppendLine(item.Name + summaryResult.PadLeft(lineLenght - item.Name.Length));
 
             if (item.Discount is not null && (discountCalculatorType.Equals(DiscountCalculatorType.FullDiscount) || discountCalculatorType.Equals(DiscountCalculatorType.OnlyItemDiscount)))

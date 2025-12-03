@@ -1,4 +1,5 @@
 import { Input, InputProps, Typography } from "@material-tailwind/react";
+import clsx from "clsx";
 import { FieldError } from "react-hook-form";
 
 interface Props extends InputProps {
@@ -7,7 +8,7 @@ interface Props extends InputProps {
   error?: FieldError;
 }
 
-export const FormInput = ({ id, label, error, ...props }: Props) => {
+export const FormInput = ({ id, label, error, className, ...props }: Props) => {
   return (
     <div className="flex flex-col gap-2">
       <Typography as="label" htmlFor={id} type="small">
@@ -16,6 +17,7 @@ export const FormInput = ({ id, label, error, ...props }: Props) => {
       <Input
         id={id}
         isError={error != undefined}
+        className={clsx(className, "py-1")}
         {...props}
       />
       <Typography color="error" type="small">

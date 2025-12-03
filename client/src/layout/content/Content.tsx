@@ -1,12 +1,12 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { BOTTOM_LINKS, LINKS } from "./links";
+import { BOTTOM_LINKS, LINKS } from "../links/Links";
 import { Button, Tooltip, Typography } from "@material-tailwind/react";
 import { Footer } from "../footer/Footer";
 import clsx from "clsx";
 
 const NavList = () => {
   return (
-    <ul className="h-full flex flex-col gap-4 p-2 pb-6 justify-between">
+    <ul className="h-full flex flex-col gap-4 lg:p-2 justify-between">
       <div className="flex flex-col gap-4">
         {LINKS.map(({ icon, title, href }) => (
           <li key={title}>
@@ -35,7 +35,7 @@ const NavList = () => {
           </li>
         ))}
       </div>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 mb-2">
         {BOTTOM_LINKS.map(({ icon, title, href }) => (
           <li key={title}>
             <NavLink to={href}>
@@ -69,12 +69,14 @@ const NavList = () => {
 
 export const Content = () => {
   return (
-    <main className="flex flex-row h-full w-full overflow-hidden">
-      <div className="h-full my-2 border-r border-surface-dark duration-200">
-        <NavList />
+    <main className="flex flex-row w-full h-full max-w-full max-h-full overflow-hidden">
+      <div className="hidden md:flex h-full py-2">
+        <div className="border-r border-surface-dark duration-200">
+          <NavList />
+        </div>
       </div>
-      <div className="w-full h-full flex flex-col">
-        <div className="w-full h-full p-4 pb-0">
+      <div className="flex flex-col w-full h-full max-w-full max-h-full overflow-hidden">
+        <div className="flex-1 w-full h-full max-w-full max-h-full overflow-hidden p-4 md:pb-0">
           <Outlet />
         </div>
         <Footer />

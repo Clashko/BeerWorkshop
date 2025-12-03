@@ -5,18 +5,15 @@ using BeerWorkshop.Application.Helpers;
 using BeerWorkshop.Application.Models;
 using BeerWorkshop.Application.Services.Interfaces;
 using BeerWorkshop.Database.Contexts;
-using BeerWorkshop.Database.Entities;
 using BeerWorkshop.Database.Entities.Devices;
 using BeerWorkshop.Database.Entities.Products;
-using BeerWorkshop.Database.Entities.Users;
 using BeerWorkshop.Database.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace BeerWorkshop.Application.MediatR.Basket;
 
-public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGenerator, IConfiguration configuration) : IRequestHandler<RealizeCommand, MediatrResponseDto<RealizationResponseDto>>
+public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGenerator) : IRequestHandler<RealizeCommand, MediatrResponseDto<RealizationResponseDto>>
 {
     public async Task<MediatrResponseDto<RealizationResponseDto>> Handle(RealizeCommand request, CancellationToken cancellationToken)
     {
@@ -40,7 +37,7 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
 
             var totalPrice = checkRows.Sum(x => x.TotalAmount);
 
-            var check = await GenerateAndSaveCheck(request, checkRowGuid, checkRows, totalPrice, transactionDate, user);
+            var check = await checkGenerator.GenerateAndSaveCheckAsync(checkRowGuid, checkRows, totalPrice, transactionDate, TransactionType.Sale, user);
 
             await context.SaveChangesAsync(cancellationToken);
 
@@ -76,7 +73,7 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
 
             productInventoryItem.Quantity -= product.Quantity;
 
-            var totalPrice = CountTotalPriceWithDiscount(productInventoryItem.RetailPrice, product.Quantity, request.Data.DiscountCalculatorType, product.DiscountPercent, request.Data.TotalDiscount);
+            var totalPrice = TotalAmountCalculator.CountTotalAmountWithDiscount(productInventoryItem.RetailPrice, product.Quantity, productInventoryItem.PricePerQuantity, request.Data.DiscountCalculatorType, product.DiscountPercent, request.Data.TotalDiscount);
 
             var statistic = new ProductsStatisticEntity
             {
@@ -96,7 +93,7 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
                 context.ProductsInventory.Remove(productInventoryItem);
             }
 
-            result.Add(new CheckRow(productInventoryItem.Product.ShortName, productInventoryItem.Product.UnitOfMeasure, product.Quantity, productInventoryItem.RetailPrice, totalPrice, product.DiscountPercent));
+            result.Add(new CheckRow(productInventoryItem.Product.ShortName, productInventoryItem.Product.UnitOfMeasure, product.Quantity, productInventoryItem.RetailPrice, productInventoryItem.PricePerQuantity, totalPrice, product.DiscountPercent));
         }
 
         return result;
@@ -120,7 +117,7 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
 
             deviceInventoryItem.Quantity -= device.Quantity;
 
-            var totalPrice = CountTotalPriceWithDiscount(deviceInventoryItem.RetailPrice, device.Quantity, request.Data.DiscountCalculatorType, device.DiscountPercent, request.Data.TotalDiscount);
+            var totalPrice = TotalAmountCalculator.CountTotalAmountWithDiscount(deviceInventoryItem.RetailPrice, device.Quantity, 1, request.Data.DiscountCalculatorType, device.DiscountPercent, request.Data.TotalDiscount);
 
             var statistic = new DevicesStatisticEntity
             {
@@ -140,59 +137,10 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
                 context.DevicesInventory.Remove(deviceInventoryItem);
             }
 
-            result.Add(new CheckRow(deviceInventoryItem.Device.ShortName, UnitOfMeasure.Piece, device.Quantity, deviceInventoryItem.RetailPrice, totalPrice, device.DiscountPercent));
+            result.Add(new CheckRow(deviceInventoryItem.Device.ShortName, UnitOfMeasure.Piece, device.Quantity, deviceInventoryItem.RetailPrice, 1, totalPrice, device.DiscountPercent));
         }
 
         return result;
-    }
-
-    private static decimal CountTotalPriceWithDiscount(decimal retailprice, decimal Quantity, DiscountCalculatorType discountCalculatorType, int? discountPercent, int? totalDiscount)
-    {
-        var price = retailprice * Quantity;
-
-        return discountCalculatorType switch
-        {
-            DiscountCalculatorType.FullDiscount => CountTotalPriceWithFullDiscount(price, discountPercent, totalDiscount),
-            DiscountCalculatorType.OnlyItemDiscount => CountOnlyItemTotalPriceWithOnlyItemDiscount(price, discountPercent),
-            DiscountCalculatorType.OnlyTotalDiscount => CountTotalPriceWithOnlyTotalDiscount(price, totalDiscount),
-            _ => throw new NotImplementedException(),
-        };
-    }
-
-    private static decimal CountTotalPriceWithFullDiscount(decimal price, int? discountPercent, int? totalDiscount)
-    {
-        if (discountPercent is null && totalDiscount is null)
-            return price;
-
-        if (discountPercent is not null)
-            price -= price * (discountPercent.Value / 100m);
-
-        if (totalDiscount is not null)
-            price -= price * (totalDiscount.Value / 100m);
-
-        return price;
-    }
-
-    private static decimal CountOnlyItemTotalPriceWithOnlyItemDiscount(decimal price, int? discountPercent)
-    {
-        if (discountPercent is null)
-            return price;
-
-        if (discountPercent is not null)
-            price -= price * (discountPercent.Value / 100m);
-
-        return price;
-    }
-
-    private static decimal CountTotalPriceWithOnlyTotalDiscount(decimal price, int? totalDiscount)
-    {
-        if (totalDiscount is null)
-            return price;
-
-        if (totalDiscount is not null)
-            price -= price * (totalDiscount.Value / 100m);
-
-        return price;
     }
 
     private static string? GenerateStatisticDiscountValue(BasketItemType type, DiscountCalculatorType discountCalculatorType, int? discountPercent, int? totalDiscount)
@@ -233,26 +181,5 @@ public class RealizeHandler(BeerWorkshopContext context, ICheckGenerator checkGe
         if (totalDiscount is null) return null;
 
         return string.Format("Total discount: {0}%", totalDiscount.Value);
-    }
-
-    private async Task<string> GenerateAndSaveCheck(RealizeCommand request, Guid checkRowGuid, List<CheckRow> checkRows, decimal totalPrice, DateTime transactionDate, UserEntity user)
-    {
-        var check = checkGenerator.GenerateCheck(new CheckModel($"{user.LastName} {user.FirstName[0].ToString().ToUpper()}.{user.SurName[0].ToString().ToUpper()}", checkRows, totalPrice, request.Data.DiscountCalculatorType, request.Data.TotalDiscount), TransactionType.Sale);
-
-        var path = configuration.CreateCheckDirectoriesAndGeneratePath(check.OrderNumber, transactionDate);
-
-        File.WriteAllText(path, check.CheckContent);
-
-        context.Checks.Add(new CheckEntity()
-        {
-            Id = checkRowGuid,
-            Path = path,
-            TransactionDate = transactionDate,
-            TotalAmount = totalPrice,
-            TransactionType = TransactionType.Sale,
-            OrderNumber = check.OrderNumber,
-        });
-
-        return check.CheckContent;
     }
 }

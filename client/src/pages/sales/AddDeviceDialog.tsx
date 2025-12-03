@@ -46,6 +46,7 @@ export const AddDeviceDialog = ({ device, addDevice }: Props) => {
         quantity: quantity,
         unitOfMeasure: 0,
         price: device.item.retailPrice,
+        pricePerQuantity: 1,
         discount: useDiscount ? discount : null,
       });
     }

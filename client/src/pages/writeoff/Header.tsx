@@ -49,27 +49,40 @@ export const Header = ({ gridRef, data, refreshExpiredInventory }: Props) => {
     saveAs(blob, `${name} №${number}.txt`);
   };
 
-  return (
-    <div className="flex flex-row gap-4 items-center justify-between">
-      <Typography type="h5" className="whitespace-nowrap">
-        Продукты на списание
-      </Typography>
-
-      <DataGridQuickFilter api={gridRef.current?.api ?? null} />
-
-      <div className="flex flex-row gap-2">
-        <AllConfirmationDialog
-          label="все продукты списания"
-          isLoading={isLoading}
-          deleteAction={handleDeleteExpiredProduct}
-        />
-        <Button variant="ghost" size="md" onClick={refreshExpiredInventory}>
+  const renderButtons = () => {
+    return (
+      <>
+        {data.length > 0 && (
+          <AllConfirmationDialog
+            label="все продукты списания"
+            isLoading={isLoading}
+            deleteAction={handleDeleteExpiredProduct}
+          />
+        )}
+        <Button
+          variant="ghost"
+          onClick={refreshExpiredInventory}
+          className="p-2 sm:p-1"
+        >
           <div className="flex flex-row gap-2 items-center text-foreground">
-            <BiRefresh size={26} />
-            Обновить
+            <BiRefresh size={20} />
+            <span className="hidden sm:block">Обновить</span>
           </div>
         </Button>
+      </>
+    );
+  };
+
+  return (
+    <div className="w-full flex flex-col sm:flex-row gap-2 items-center">
+      <div className="w-full sm:w-auto flex flex-row gap-2 justify-between">
+        <Typography type="h5" className="whitespace-nowrap">
+          Продукты на списание
+        </Typography>
+        <div className="flex sm:hidden flex-row gap-2">{renderButtons()}</div>
       </div>
+      <DataGridQuickFilter api={gridRef.current?.api ?? null} />
+      <div className="hidden sm:flex flex-row gap-2">{renderButtons()}</div>
     </div>
   );
 };

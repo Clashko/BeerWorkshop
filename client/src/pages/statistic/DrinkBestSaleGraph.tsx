@@ -33,7 +33,7 @@ export const DrinkBestSaleGraph = () => {
       angleKey="totalQuantity"
       labelKey="name"
       title="Продажи напитков"
-      className="w-1/4"
+      className="flex-2 sm:flex-1"
     />
   );
 };

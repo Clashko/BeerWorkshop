@@ -2,32 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.ag-theme-material .ag-input-field-input,
-.ag-theme-material .ag-floating-filter-input {
-  @apply outline-none 
-    ring
-    ring-transparent 
-    select-none 
-    py-2 
-    px-8 
-    text-surface-foreground 
-    bg-transparent 
-    placeholder:text-surface-foreground/60 
-    border 
-    border-surface-light 
-    text-sm 
-    rounded-md 
-    shadow-all-sm 
-    transition-all 
-    hover:border-primary 
-    hover:ring-primary/10
-    focus:outline-none 
-    focus:border-primary 
-    focus:ring-primary/10
-    ease-in;
-}
-
-.ag-theme-material .ag-input-field-input:focus,
-.ag-theme-material .ag-floating-filter-input:focus {
-  @apply outline-none border-primary ring-primary/10;
+@layer base {
+  
 }

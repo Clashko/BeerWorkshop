@@ -24,7 +24,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
     {
       headerName: "Номер транзакции",
       valueGetter: (params: any) => params.data.orderNumber,
-      minWidth: 230,
+      minWidth: 190,
       sortable: true,
       filter: "agNumberColumnFilter",
     },
@@ -33,7 +33,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       valueGetter: (params: any) =>
         TransactionTypeDisplay[params.data.transactionType as TransactionType],
       sortable: true,
-      minWidth: 200,
+      minWidth: 170,
       filter: "agTextColumnFilter",
     },
     {
@@ -41,7 +41,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       valueGetter: (params: any) => params.data.transactionDate,
       cellDataType: "date",
       sortable: true,
-      minWidth: 220,
+      minWidth: 180,
       filterParams: {
         browserDatePicker: true,
         comparator: (filterLocalDateAtMidnight: any, cellValue: any) => {
@@ -70,7 +70,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
     {
       headerName: "Общая сумма",
       valueGetter: (params: any) => params.data.totalAmount,
-      minWidth: 190,
+      minWidth: 160,
       sortable: true,
       filter: "agNumberColumnFilter",
     },
@@ -125,7 +125,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
   };
 
   return (
-    <Card className="bg-surface h-full ag-theme-material">
+    <Card className="bg-surface h-full ag-theme-material text-sm">
       <DataGrid
         ref={gridRef}
         data={data}

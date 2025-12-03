@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import {
   ExpirationCountingDateType,
   ExpirationCountingDateTypeOptions,
@@ -7,39 +7,42 @@ import {
   ExpirationMeasureTypeOptions,
 } from "../../redux/enums";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Button,
-  Drawer,
-  IconButton,
-  Spinner,
-  Typography,
-} from "@material-tailwind/react";
+import { Button, IconButton, Spinner } from "@material-tailwind/react";
 import { BiAddToQueue } from "react-icons/bi";
-import { CgClose } from "react-icons/cg";
 import {
   FormDatePicker,
   FormInput,
   FormNumberSelect,
   FormStringSelect,
+  SideBar,
 } from "../../components";
 import { toast } from "react-toastify";
-import { CreateProductInventoryItemRequestDto } from "../../redux/dtos/requests/productsInventory";
+import {
+  CreateProductInventoryItemRequestDto,
+  CreateProductsDeliveryRequestDto,
+} from "../../redux/dtos/requests/productsInventory";
 import { useCreateProductsInventoryItemMutation } from "../../redux/api/productsInventoryApi";
 import { ProductResponseDto } from "../../redux/dtos/responses/producs";
 import { SelectOption } from "../../interfaces/SelectOption";
+import { useState } from "react";
+import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 
-const schema: yup.ObjectSchema<CreateProductInventoryItemRequestDto> =
+const itemSchema: yup.ObjectSchema<CreateProductInventoryItemRequestDto> =
   yup.object({
     quantity: yup.number().required("Задайте количество"),
     incomingDate: yup.date().required("Задайте дату поступления"),
     purchasePrice: yup.number().required("Задайте закупочную цену"),
     retailPrice: yup.number().required("Задайте розничную цену"),
+    pricePerQuantity: yup.number().required("Задайте цену за количество"),
     manufactureDate: yup.date().required("Задайте дату производства"),
     expirationTime: yup.number().required("Задайте срок годности"),
     expirationMeasure: yup
       .mixed<ExpirationMeasureType>()
       .oneOf([0, 1, 2], "Неверный тип срока годности")
-      .required("Выберите тип срока годности") as yup.Schema<ExpirationMeasureType>,
+      .required(
+        "Выберите тип срока годности"
+      ) as yup.Schema<ExpirationMeasureType>,
     productId: yup.string().required("Не выбран исходный продукт"),
     openingDate: yup.date().optional().nullable(),
     expirationCountingDateType: yup
@@ -49,6 +52,18 @@ const schema: yup.ObjectSchema<CreateProductInventoryItemRequestDto> =
         "Выберите тип отсчета срока годности"
       ) as yup.Schema<ExpirationCountingDateType>,
   });
+
+type FormValues = {
+  items: CreateProductInventoryItemRequestDto[];
+};
+
+const schema: yup.ObjectSchema<FormValues> = yup.object({
+  items: yup
+    .array()
+    .of(itemSchema)
+    .min(1, "Добавьте хотя бы один продукт")
+    .required(),
+});
 
 interface Props {
   products: ProductResponseDto[];
@@ -70,31 +85,40 @@ export const AddForm = ({ products }: Props) => {
     formState: { errors },
     clearErrors,
     reset,
-  } = useForm<CreateProductInventoryItemRequestDto>({
+  } = useForm<FormValues>({
     resolver: yupResolver(schema),
-    defaultValues: {
-      productId: "",
-      quantity: 0,
-      manufactureDate: undefined,
-      incomingDate: undefined,
-      purchasePrice: undefined,
-      retailPrice: undefined,
-      expirationTime: undefined,
-      expirationMeasure: undefined,
-      openingDate: undefined,
-      expirationCountingDateType: undefined
-    },
+    defaultValues: { items: [] },
   });
 
-  const onSubmit: SubmitHandler<CreateProductInventoryItemRequestDto> = (
-    data,
-    event
-  ) => {
-    event?.preventDefault();
-    const product = products.find((p) => p.id === data.productId);
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "items",
+  });
 
-    if (product) {
-      createProductInventoryItem({ product: product, body: data })
+  const groupByProductId = (
+    items: CreateProductInventoryItemRequestDto[]
+  ): CreateProductsDeliveryRequestDto[] => {
+    const map = items.reduce((acc, item) => {
+      if (!acc[item.productId]) {
+        acc[item.productId] = [];
+      }
+      acc[item.productId].push(item);
+      return acc;
+    }, {} as Record<string, typeof items>);
+
+    return Object.entries(map).map(([productId, items]) => ({
+      productId,
+      items,
+    }));
+  };
+
+  const onSubmit: SubmitHandler<FormValues> = (data, event) => {
+    event?.preventDefault();
+
+    const grouped = groupByProductId(data.items);
+
+    if (grouped) {
+      createProductInventoryItem(grouped)
         .unwrap()
         .then((result) => {
           toast.info(result.message);
@@ -104,127 +128,226 @@ export const AddForm = ({ products }: Props) => {
     }
   };
 
+  const [collapsed, setCollapsed] = useState<boolean[]>([]);
+
+  const toggleCollapse = (index: number) => {
+    setCollapsed((prev) => {
+      const copy = [...prev];
+      copy[index] = !copy[index];
+      return copy;
+    });
+  };
+
   return (
-    <Drawer>
-      <Drawer.Trigger
-        as={Button}
-        variant="ghost"
-        size="md"
-        className="flex flex-row gap-2 items-center text-foreground"
+    <SideBar
+      triggerConent={
+        <>
+          <BiAddToQueue size={20} />
+          <span className="hidden sm:block">Добавить</span>
+        </>
+      }
+      color="primary"
+      title="Добавление продукта на склад"
+    >
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="h-full max-h-full flex flex-col gap-4 justify-between"
       >
-        <BiAddToQueue size={26} />
-        Добавить
-      </Drawer.Trigger>
-      <Drawer.Overlay className="bg-surface-dark/70">
-        <Drawer.Panel className="max-h-screen h-screen text-foreground">
-          <div className="flex flex-row justify-between items-center gap-4 mb-4">
-            <Typography type="h6">Добавление продукта на склад</Typography>
-            <Drawer.DismissTrigger
-              as={IconButton}
-              size="sm"
-              variant="ghost"
-              isCircular
+        <div className="h-full max-h-full pr-2 flex flex-col gap-2 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent">
+          {fields.map((_field, index) => (
+            <div
+              key={index}
+              className="flex flex-col gap-2 p-2 shadow-all-md rounded-md bg-surface"
             >
-              <CgClose size={16} />
-            </Drawer.DismissTrigger>
-          </div>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="h-full flex flex-col gap-4"
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">Продукт {index + 1}</span>
+                <div className="flex gap-2">
+                  <IconButton
+                    variant="ghost"
+                    color="error"
+                    type="button"
+                    onClick={() => remove(index)}
+                  >
+                    <MdDelete size={20} />
+                  </IconButton>
+                  <IconButton
+                    variant="ghost"
+                    color="info"
+                    type="button"
+                    onClick={() => toggleCollapse(index)}
+                  >
+                    {collapsed[index] ? (
+                      <FaArrowDown size={19} />
+                    ) : (
+                      <FaArrowUp size={19} />
+                    )}
+                  </IconButton>
+                </div>
+              </div>
+
+              {!collapsed[index] && (
+                <div className="flex flex-col gap-2">
+                  <FormStringSelect
+                    id={`${index}.productId`}
+                    label="Продукт"
+                    control={control}
+                    name={`items.${index}.productId`}
+                    type="string"
+                    options={productOptions}
+                  />
+
+                  <FormInput
+                    id={`${index}.quantity`}
+                    label="Количество"
+                    type="number"
+                    step="any"
+                    {...register(`items.${index}.quantity`)}
+                    error={
+                      errors.items !== undefined
+                        ? errors.items[index]?.quantity
+                        : undefined
+                    }
+                  />
+
+                  <FormDatePicker
+                    id={`${index}.manufactureDate`}
+                    name={`items.${index}.manufactureDate`}
+                    label="Дата производства"
+                    control={control}
+                  />
+
+                  <FormDatePicker
+                    id={`${index}.incomingDate`}
+                    name={`items.${index}.incomingDate`}
+                    label="Дата поступления"
+                    control={control}
+                  />
+
+                  <FormInput
+                    id={`${index}.purchasePrice`}
+                    label="Закупочная цена"
+                    type="number"
+                    step="any"
+                    {...register(`items.${index}.purchasePrice`)}
+                    error={
+                      errors.items !== undefined
+                        ? errors.items[index]?.purchasePrice
+                        : undefined
+                    }
+                  />
+
+                  <FormInput
+                    id={`${index}.retailPrice`}
+                    label="Розничная цена"
+                    type="number"
+                    step="any"
+                    {...register(`items.${index}.retailPrice`)}
+                    error={
+                      errors.items !== undefined
+                        ? errors.items[index]?.retailPrice
+                        : undefined
+                    }
+                  />
+
+                  <FormInput
+                    id={`${index}.pricePerQuantity`}
+                    label="Цена за количество"
+                    type="number"
+                    step="any"
+                    {...register(`items.${index}.pricePerQuantity`)}
+                    error={
+                      errors.items !== undefined
+                        ? errors.items[index]?.pricePerQuantity
+                        : undefined
+                    }
+                  />
+
+                  <FormInput
+                    id={`${index}.expirationTime`}
+                    label="Срок годности"
+                    type="number"
+                    step="any"
+                    {...register(`items.${index}.expirationTime`)}
+                    error={
+                      errors.items !== undefined
+                        ? errors.items[index]?.expirationTime
+                        : undefined
+                    }
+                  />
+
+                  <FormNumberSelect
+                    id={`${index}.expirationMeasure`}
+                    label="Тип срока годности"
+                    control={control}
+                    name={`items.${index}.expirationMeasure`}
+                    type="number"
+                    options={ExpirationMeasureTypeOptions}
+                  />
+
+                  <FormDatePicker
+                    id={`${index}.openingDate`}
+                    name={`items.${index}.openingDate`}
+                    label="Дата вскрытия"
+                    withTime
+                    control={control}
+                  />
+
+                  <FormNumberSelect
+                    id={`${index}.expirationCountingDateType`}
+                    label="Тип отсчета срока годности"
+                    control={control}
+                    name={`items.${index}.expirationCountingDateType`}
+                    type="number"
+                    options={ExpirationCountingDateTypeOptions}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          {/* Ошибка массива */}
+          {errors.items && typeof errors.items.message === "string" && (
+            <p className="text-red-500 text-sm">{errors.items.message}</p>
+          )}
+          <Button
+            variant="outline"
+            color="warning"
+            isFullWidth
+            className="text-foreground"
+            type="button"
+            onClick={() =>
+              append({
+                quantity: 0,
+                incomingDate: new Date(),
+                purchasePrice: 0,
+                retailPrice: 0,
+                pricePerQuantity: 0,
+                manufactureDate: new Date(),
+                expirationTime: 0,
+                expirationMeasure: 0,
+                openingDate: null,
+                expirationCountingDateType: 0,
+                productId: products[0].id,
+              })
+            }
           >
-            <FormStringSelect
-              id="productId"
-              label="Продукт"
-              control={control}
-              name="productId"
-              type="string"
-              options={productOptions}
-            />
+            Добавить еще продукт?
+          </Button>
 
-            <FormInput
-              id="quantity"
-              label="Количество"
-              type="number"
-              {...register("quantity")}
-              error={errors.quantity}
-            />
-
-            <FormDatePicker
-              id="manufactureDate"
-              name="manufactureDate"
-              label="Дата производства"
-              control={control}
-            />
-
-            <FormDatePicker
-              id="incomingDate"
-              name="incomingDate"
-              label="Дата поступления"
-              control={control}
-            />
-
-            <FormInput
-              id="purchasePrice"
-              label="Закупочная цена"
-              type="number"
-              {...register("purchasePrice")}
-              error={errors.purchasePrice}
-            />
-
-            <FormInput
-              id="retailPrice"
-              label="Розничная цена"
-              type="number"
-              {...register("retailPrice")}
-              error={errors.retailPrice}
-            />
-
-            <FormInput
-              id="expirationTime"
-              label="Срок годности"
-              type="number"
-              {...register("expirationTime")}
-              error={errors.expirationTime}
-            />
-
-            <FormNumberSelect
-              id="expirationMeasure"
-              label="Тип срока годности"
-              control={control}
-              name="expirationMeasure"
-              type="number"
-              options={ExpirationMeasureTypeOptions}
-            />
-
-            <FormDatePicker
-              id="openingDate"
-              name="openingDate"
-              label="Дата вскрытия"
-              withTime
-              control={control}
-            />
-
-            <FormNumberSelect
-              id="expirationCountingDateType"
-              label="Тип отсчета срока годности"
-              control={control}
-              name="expirationCountingDateType"
-              type="number"
-              options={ExpirationCountingDateTypeOptions}
-            />
-
-            <Button
-              variant="outline"
-              isFullWidth
-              className="text-foreground"
-              onClick={() => clearErrors()}
-            >
-              {isLoading && <Spinner size="sm" />}
-              Добавить
-            </Button>
-          </form>
-        </Drawer.Panel>
-      </Drawer.Overlay>
-    </Drawer>
+          <Button
+            type="submit"
+            variant="outline"
+            isFullWidth
+            className="text-foreground"
+            onClick={() => clearErrors()}
+          >
+            {isLoading && <Spinner size="sm" />}
+            Добавить
+          </Button>
+        </div>
+      </form>
+    </SideBar>
   );
 };

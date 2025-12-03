@@ -23,12 +23,14 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       field: "name",
       sortable: true,
       filter: "agTextColumnFilter",
+      minWidth: 160
     },
     {
       headerName: "Короткое наименование",
       field: "shortName",
       sortable: true,
       filter: "agTextColumnFilter",
+      minWidth: 230
     },
     {
       colId: "actions",
@@ -59,7 +61,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
   };
 
   return (
-    <Card className="bg-surface h-full ag-theme-material">
+    <Card className="bg-surface h-full ag-theme-material text-sm">
       <DataGrid
         ref={gridRef}
         data={data}
