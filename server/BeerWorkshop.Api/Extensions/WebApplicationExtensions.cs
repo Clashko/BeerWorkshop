@@ -13,15 +13,15 @@ public static class WebApplicationExtensions
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
         });
 
-        if (app.Environment.IsDevelopment())
+        app.UsePathBase("/server");
+
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/BeerWorkshopService/swagger.json", "BeerWorkshop v1");
-                c.RoutePrefix = "swagger";
-            });
-        }
+            c.SwaggerEndpoint("/server/swagger/BeerWorkshopService/swagger.json", "BeerWorkshop v1");
+            c.RoutePrefix = "swagger";
+        });
+
         app.UseRouting();
 
         app.UseCors("AllowAllPolicy");

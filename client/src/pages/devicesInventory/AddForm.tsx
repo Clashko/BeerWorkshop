@@ -20,12 +20,14 @@ import { useCreateDevicesInventoryItemMutation } from "../../redux/api/devicesIn
 import { useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import saveAs from "file-saver";
 
 const itemSchema: yup.ObjectSchema<CreateDeviceInventoryItemRequestDto> =
   yup.object({
     quantity: yup.number().required("Задайте количество"),
     incomingDate: yup.date().required("Задайте дату поступления"),
     purchasePrice: yup.number().required("Задайте закупочную цену"),
+    purchaseVat: yup.number().required("Задайте процент НДС"),
     retailPrice: yup.number().required("Задайте розничную цену"),
     deviceId: yup.string().required("Не выбран исходный продукт"),
   });
@@ -99,10 +101,26 @@ export const AddForm = ({ devices }: Props) => {
         .unwrap()
         .then((result) => {
           toast.info(result.message);
+          handleSaveCheck(result.data.checkContent);
           reset();
         })
         .catch((error) => toast.error(error.data));
     }
+  };
+
+  const handleSaveCheck = (content: string) => {
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const lines = content.split("\n");
+    const typeLine = lines[5].trim();
+    const numberLine = lines[6].trim();
+    const match = numberLine.match(/№\s*(\d+)/);
+    let name = "";
+    if (typeLine === "Списание") name = "WriteOff";
+    else if (typeLine === "Приход") name = "Arrival";
+    else name = "Sale";
+    let number = 1;
+    if (match) number = Number(match[1]);
+    saveAs(blob, `${name} №${number}.txt`);
   };
 
   const [collapsed, setCollapsed] = useState<boolean[]>([]);
@@ -124,7 +142,7 @@ export const AddForm = ({ devices }: Props) => {
         </>
       }
       color="primary"
-      title="Добавление продукта на склад"
+      title="Добавление расходников на склад"
     >
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -207,6 +225,19 @@ export const AddForm = ({ devices }: Props) => {
                   />
 
                   <FormInput
+                    id={`${index}.purchaseVat`}
+                    label="Процент НДС"
+                    type="number"
+                    step="any"
+                    {...register(`items.${index}.purchaseVat`)}
+                    error={
+                      errors.items !== undefined
+                        ? errors.items[index]?.purchaseVat
+                        : undefined
+                    }
+                  />
+
+                  <FormInput
                     id={`${index}.retailPrice`}
                     label="Розничная цена"
                     type="number"
@@ -241,6 +272,7 @@ export const AddForm = ({ devices }: Props) => {
                 quantity: 0,
                 incomingDate: new Date(),
                 purchasePrice: 0,
+                purchaseVat: 0,
                 retailPrice: 0,
               })
             }

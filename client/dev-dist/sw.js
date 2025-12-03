@@ -85,11 +85,11 @@ define(['./workbox-54d0af47'], (function (workbox) { 'use strict';
     "url": "suppress-warnings.js",
     "revision": "d41d8cd98f00b204e9800998ecf8427e"
   }, {
-    "url": "index.html",
-    "revision": "0.bpinhlcv3eg"
+    "url": "/client/index.html",
+    "revision": "0.jo6g5fvudco"
   }], {});
   workbox.cleanupOutdatedCaches();
-  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
+  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/client/index.html"), {
     allowlist: [/^\/$/]
   }));
 

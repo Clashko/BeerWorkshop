@@ -16,10 +16,12 @@ public class TokenService(AuthConfiguration configuration) : ITokenService
         var secureKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration.JwtSecureKey));
         var signingCredentials = new SigningCredentials(secureKey, SecurityAlgorithms.HmacSha256);
         var tokenOptions = new JwtSecurityToken(
+            issuer: configuration.JwtIssuer,
+            audience: configuration.JwtAudience,
             claims: [
                 new(ClaimTypes.Name, user.Id.ToString()),
             ],
-            expires: DateTime.Now.AddMinutes(configuration.JwtLifeTimeInMinutes),
+            expires: DateTime.UtcNow.AddMinutes(configuration.JwtLifeTimeInMinutes),
             signingCredentials: signingCredentials
         );
         var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);

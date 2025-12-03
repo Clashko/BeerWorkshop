@@ -21,6 +21,7 @@ interface Props {
 export const ViewCheckInfo = ({ check }: Props) => {
   const columns: ColDef<CheckItemResponseDto>[] = [
     {
+      colId: "name",
       headerName: "Наименование",
       valueGetter: (params: any) => params.data.name,
       minWidth: 230,

@@ -7,6 +7,7 @@ public record UpdateProductInventoryItemRequestDto(
     DateTime IncomingDate,
     DateTime? OpeningDate,
     decimal PurchasePrice,
+    decimal PurchaseVat,
     decimal RetailPrice,
     decimal PricePerQuantity,
     DateTime ManufactureDate,

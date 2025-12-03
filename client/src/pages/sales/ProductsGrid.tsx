@@ -48,6 +48,7 @@ export const ProductsGrid = ({ basketProducts, setBasketProducts }: Props) => {
 
   const columns: ColDef<InventoryRow>[] = [
     {
+      colId: "name",
       headerName: "Наименование",
       valueGetter: ({ data }) => data!.product.name,
       cellStyle: {

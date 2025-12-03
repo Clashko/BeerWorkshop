@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "dist",
+    outDir: "D:/Programming/Sites/BeerWorkshop/Client",
     // cssMinify is disabled because of a bug in lightningcss with @material-tailwind/react beta version
     cssMinify: false,
   },

@@ -25,6 +25,7 @@ const schema: yup.ObjectSchema<UpdateProductInventoryItemRequestDto> =
     quantity: yup.number().required("Задайте количество"),
     incomingDate: yup.date().required("Задайте дату поступления"),
     purchasePrice: yup.number().required("Задайте закупочную цену"),
+    purchaseVat: yup.number().required("Задайте процент НДС"),
     retailPrice: yup.number().required("Задайте розничную цену"),
     pricePerQuantity: yup.number().required("Задайте цену за количество"),
     manufactureDate: yup.date().required("Задайте дату производства"),
@@ -107,6 +108,7 @@ export const EditForm = ({ productInventoryItem, productId }: Props) => {
             id="quantity"
             label="Количество"
             type="number"
+            step="any"
             {...register("quantity")}
             error={errors.quantity}
           />
@@ -129,20 +131,32 @@ export const EditForm = ({ productInventoryItem, productId }: Props) => {
             id="purchasePrice"
             label="Закупочная цена"
             type="number"
+            step="any"
             {...register("purchasePrice")}
             error={errors.purchasePrice}
+          />
+
+          <FormInput
+            id="purchaseVat"
+            label="Процент НДС"
+            type="number"
+            step="any"
+            {...register("purchaseVat")}
+            error={errors.purchaseVat}
           />
 
           <FormInput
             id="retailPrice"
             label="Розничная цена"
             type="number"
+            step="any"
             {...register("retailPrice")}
             error={errors.retailPrice}
           />
 
           <FormInput
             id="pricePerQuantity"
+            step="any"
             label="Цена за количество"
             type="number"
             {...register("pricePerQuantity")}
@@ -153,6 +167,7 @@ export const EditForm = ({ productInventoryItem, productId }: Props) => {
             id="expirationTime"
             label="Срок годности"
             type="number"
+            step="any"
             {...register("expirationTime")}
             error={errors.expirationTime}
           />

@@ -55,7 +55,7 @@ public class CheckGenerator(BeerWorkshopContext context, ICheckNumberService che
         var lineLenght = configuration.GetSection("CheckConfiguration").GetValue<int>("LineLength");
 
         sb.AppendLine(BasketStaticValues.OrganizationName.PaddingLeft(lineLenght));
-        sb.AppendLine(BasketStaticValues.OrganizationCityAndAddress);
+        sb.AppendLine(BasketStaticValues.OrganizationCityAndAddress.PaddingLeft(lineLenght));
         sb.AppendLine(BasketStaticValues.OrganizationHomeAndApartment.PaddingLeft(lineLenght));
         sb.AppendLine(BasketStaticValues.Unp + BasketStaticValues.OrganizationUnp.PadLeft(lineLenght - BasketStaticValues.Unp.Length));
         AppendSeparator(sb);
@@ -68,7 +68,7 @@ public class CheckGenerator(BeerWorkshopContext context, ICheckNumberService che
         switch (transactionType)
         {
             case TransactionType.Arrival:
-                sb.Append(BasketStaticValues.ArrivalDocument.PaddingLeft(lineLenght));
+                sb.AppendLine(BasketStaticValues.ArrivalDocument.PaddingLeft(lineLenght));
                 break;
             case TransactionType.Sale:
                 sb.AppendLine(BasketStaticValues.RetailDocument.PaddingLeft(lineLenght));
@@ -89,13 +89,29 @@ public class CheckGenerator(BeerWorkshopContext context, ICheckNumberService che
 
         foreach (var item in items)
         {
-            var summaryResult = string.Format(BasketStaticValues.Formats[FormatEnum.ItemRow], item.Quantity, BasketStaticValues.Measures[item.Measure], item.Price);
+            var price = item.vat != null && item.vat > 0 ? item.Price * (1 + item.vat / 100) : item.Price;
+            var summaryResult = string.Format(BasketStaticValues.Formats[FormatEnum.ItemRow], item.Quantity, BasketStaticValues.Measures[item.Measure], price);
             if (item.PricePerQuantity > 1)
             {
                 summaryResult += string.Format(BasketStaticValues.Formats[FormatEnum.ItemRowPricePerQuantity], item.PricePerQuantity, BasketStaticValues.Measures[item.Measure]);
             }
 
-            sb.AppendLine(item.Name + summaryResult.PadLeft(lineLenght - item.Name.Length));
+            var lines = new List<string>();
+            var name = item.Name;
+
+            while (name.Length > 0)
+            {
+                int take = Math.Min(name.Length, lineLenght - 2 - summaryResult.Length);
+                lines.Add(name[..take]);
+                name = name[take..];
+            }
+
+            for (int i = 0; i < lines.Count - 1; i++)
+            {
+                sb.AppendLine(lines[i]);
+            }
+
+            sb.AppendLine(lines.Last() + summaryResult.PadLeft(lineLenght - lines.Last().Length));
 
             if (item.Discount is not null && (discountCalculatorType.Equals(DiscountCalculatorType.FullDiscount) || discountCalculatorType.Equals(DiscountCalculatorType.OnlyItemDiscount)))
             {

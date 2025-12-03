@@ -31,6 +31,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
 
   const columns: ColDef<DeviceInventoryRow>[] = [
     {
+      colId: "name",
       headerName: "Наименование",
       valueGetter: (params) => params.data?.device.name,
       cellStyle: {
@@ -39,14 +40,14 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
         justifyContent: "start",
       },
       spanRows: true,
-      minWidth:160
+      minWidth: 160,
     },
     {
       headerName: "Дата поступления",
       valueGetter: (params) => params.data?.item.incomingDate,
       cellDataType: "date",
       sortable: true,
-      minWidth:190,
+      minWidth: 190,
       filterParams: {
         browserDatePicker: true,
         comparator: (filterLocalDateAtMidnight: any, cellValue: any) => {
@@ -77,14 +78,21 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       valueGetter: (params) => params.data?.item.purchasePrice,
       sortable: true,
       filter: "agNumberColumnFilter",
-      minWidth:180,
+      minWidth: 180,
+    },
+    {
+      headerName: "Процент НДС",
+      valueGetter: (params) => params.data?.item.purchaseVat,
+      sortable: true,
+      filter: "agNumberColumnFilter",
+      minWidth: 160,
     },
     {
       headerName: "Розничная цена",
       valueGetter: (params) => params.data?.item.retailPrice,
       sortable: true,
       filter: "agNumberColumnFilter",
-      minWidth:170,
+      minWidth: 170,
     },
     {
       headerName: "Количество",
@@ -93,7 +101,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       },
       sortable: true,
       filter: "agTextColumnFilter",
-      minWidth:140,
+      minWidth: 140,
     },
     {
       colId: "actions",

@@ -18,7 +18,7 @@ export const LoginPanel = ({ setIsLogin }: Props) => {
         size="md"
         color="secondary"
         variant="outline"
-        className="mt-2 text-secondary"
+        className="mt-2 text-secondary hover:text-white"
         isFullWidth
         onClick={() => setIsLogin(false)}
       >

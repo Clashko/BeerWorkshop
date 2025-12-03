@@ -114,6 +114,7 @@ export const BasketGrid = ({
       minWidth: 140,
     },
     {
+      colId: "name",
       headerName: "Наименование",
       valueGetter: ({ data }) => data!.name,
       sortable: true,

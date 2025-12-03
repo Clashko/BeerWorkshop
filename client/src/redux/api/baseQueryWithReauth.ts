@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   BaseQueryApi,
   FetchArgs,
@@ -8,6 +9,7 @@ import { TokensResponseDto } from "../dtos/responses/users/TokensResponseDto";
 import { toast } from "react-toastify";
 import { resetTokensState, setTokens } from "../features/authSlice";
 import { resetUserState } from "../features/userSlice";
+import { ApiResponseDto } from "../dtos/responses/apiResponseDto";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
@@ -33,7 +35,7 @@ const baseQueryWithReauth = async (
 ) => {
   let result = await baseQuery(args, api, extraOptions);
 
-  if (result.error?.status === 401) {
+  if (result.error && (result.error as any).status === 401) {
     try {
       const state = api.getState() as RootState;
 
@@ -51,7 +53,9 @@ const baseQueryWithReauth = async (
       );
 
       if (response.data) {
-        api.dispatch(setTokens(response.data as TokensResponseDto));
+        const refreshResponse =
+          response.data as ApiResponseDto<TokensResponseDto>;
+        api.dispatch(setTokens(refreshResponse.data));
         result = await baseQuery(args, api, extraOptions);
       } else {
         if (response.error?.status === 400) {

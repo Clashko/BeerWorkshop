@@ -116,6 +116,9 @@ namespace BeerWorkshop.Database.Migrations
                     b.Property<decimal>("PurchasePrice")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal>("PurchaseVat")
+                        .HasColumnType("TEXT");
+
                     b.Property<decimal>("Quantity")
                         .HasColumnType("TEXT");
 
@@ -265,6 +268,9 @@ namespace BeerWorkshop.Database.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("PurchasePrice")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("PurchaseVat")
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Quantity")

@@ -25,6 +25,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
 
   const columns: ColDef<ProductResponseDto>[] = [
     {
+      colId: "name",
       headerName: "Наименование",
       field: "name",
       sortable: true,
@@ -33,6 +34,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       minWidth:180
     },
     {
+      colId: "shortName",
       headerName: "Короткое наименование",
       field: "shortName",
       sortable: true,

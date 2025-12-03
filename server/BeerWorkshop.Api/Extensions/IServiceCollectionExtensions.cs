@@ -1,4 +1,3 @@
-using System.Text;
 using BeerWorkshop.Api.Behaviors;
 using BeerWorkshop.Application.MappingProfiles;
 using BeerWorkshop.Application.MediatR.Products.Create;
@@ -10,9 +9,7 @@ using BeerWorkshop.Database.Contexts;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
 namespace BeerWorkshop.Api.Extensions;

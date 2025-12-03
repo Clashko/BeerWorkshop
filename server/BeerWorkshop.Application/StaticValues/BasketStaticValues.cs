@@ -29,7 +29,7 @@ namespace BeerWorkshop.Application.StaticValues
         public static Dictionary<FormatEnum, string> Formats { get; } = new Dictionary<FormatEnum, string>()
         {
             {FormatEnum.Number, "№ {0:D3} от {1:dd.MM.yyyy}"},
-            {FormatEnum.ItemRow, "{0}{1} * {2} BYN"},
+            {FormatEnum.ItemRow, "{0}{1} * {2:F2} BYN"},
             {FormatEnum.ItemRowPricePerQuantity, " / {0}{1}"},
             {FormatEnum.ItemDiscountRow, "Скидка {0}%"},
             {FormatEnum.TotalDiscount, "{0}%"},

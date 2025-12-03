@@ -1,10 +1,7 @@
 import * as yup from "yup";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Button,
-  Spinner,
-} from "@material-tailwind/react";
+import { Button, Spinner } from "@material-tailwind/react";
 import { BiEdit } from "react-icons/bi";
 import { FormDatePicker, FormInput, SideBar } from "../../components";
 import { toast } from "react-toastify";
@@ -17,6 +14,7 @@ const schema: yup.ObjectSchema<UpdateDeviceInventoryItemRequestDto> =
     quantity: yup.number().required("Задайте количество"),
     incomingDate: yup.date().required("Задайте дату поступления"),
     purchasePrice: yup.number().required("Задайте закупочную цену"),
+    purchaseVat: yup.number().required("Задайте процент НДС"),
     retailPrice: yup.number().required("Задайте розничную цену"),
   });
 
@@ -91,14 +89,25 @@ export const EditForm = ({ deviceInventoryItem, deviceId }: Props) => {
             id="purchasePrice"
             label="Закупочная цена"
             type="number"
+            step="any"
             {...register("purchasePrice")}
             error={errors.purchasePrice}
+          />
+
+          <FormInput
+            id="purchaseVat"
+            label="Процент НДС"
+            type="number"
+            step="any"
+            {...register("purchaseVat")}
+            error={errors.purchaseVat}
           />
 
           <FormInput
             id="retailPrice"
             label="Розничная цена"
             type="number"
+            step="any"
             {...register("retailPrice")}
             error={errors.retailPrice}
           />

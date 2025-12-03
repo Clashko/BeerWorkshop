@@ -7,6 +7,7 @@ export interface UpdateProductInventoryItemRequestDto {
   quantity: number;
   incomingDate: Date;
   purchasePrice: number;
+  purchaseVat: number;
   retailPrice: number;
   pricePerQuantity: number;
   manufactureDate: Date;

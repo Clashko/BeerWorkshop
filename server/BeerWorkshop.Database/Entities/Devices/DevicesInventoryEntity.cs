@@ -12,6 +12,7 @@ public class DevicesInventoryEntity
     public DateTime IncomingDate { get; set; }
 
     public decimal PurchasePrice { get; set; }
+    public decimal PurchaseVat { get; set; }
     public decimal RetailPrice { get; set; }
 
     public Guid DeviceId { get; set; }

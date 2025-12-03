@@ -44,6 +44,7 @@ export const DevicesGrid = ({ basketDevices, setBasketDevices }: Props) => {
 
   const columns: ColDef<DeviceInventoryRow>[] = [
     {
+      colId: "name",
       headerName: "Наименование",
       valueGetter: (params) => params.data?.device.name,
       cellStyle: {

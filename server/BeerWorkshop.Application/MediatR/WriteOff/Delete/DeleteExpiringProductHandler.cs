@@ -1,5 +1,6 @@
 using BeerWorkshop.Application.Dto.Responses;
 using BeerWorkshop.Application.Dto.Responses.WriteOff;
+using BeerWorkshop.Application.Helpers;
 using BeerWorkshop.Application.Models;
 using BeerWorkshop.Application.Services.Interfaces;
 using BeerWorkshop.Database.Contexts;
@@ -40,23 +41,27 @@ public class DeleteExpiringProductHandler(BeerWorkshopContext context, ICheckGen
 
             foreach (var expiringProduct in expiringProducts)
             {
-                var totalAmount = expiringProduct.PurchasePrice * expiringProduct.Quantity;
+
+                var priceWithVat = expiringProduct.PurchasePrice * (1 + expiringProduct.PurchaseVat / 100);
+
+                var itemTotalAmount = TotalAmountCalculator.CalculateTotalAmount(priceWithVat, expiringProduct.PricePerQuantity, expiringProduct.Quantity);
+
                 var statistic = new ProductsStatisticEntity
                 {
                     ProductId = expiringProduct.ProductId,
                     TransactionType = TransactionType.WriteOff,
                     Quantity = expiringProduct.Quantity,
                     Price = expiringProduct.PurchasePrice,
-                    TotalAmount = totalAmount,
+                    TotalAmount = itemTotalAmount,
                     TransactionDate = transactionDate,
                     CheckId = checkRowGuid
                 };
 
                 statisticRows.Add(statistic);
 
-                checkRows.Add(new CheckRow(expiringProduct.Product.Name, expiringProduct.Product.UnitOfMeasure, expiringProduct.Quantity, expiringProduct.PurchasePrice, expiringProduct.PricePerQuantity, totalAmount));
+                checkRows.Add(new CheckRow(expiringProduct.Product.ShortName, expiringProduct.Product.UnitOfMeasure, expiringProduct.Quantity, expiringProduct.PurchasePrice, expiringProduct.PricePerQuantity, itemTotalAmount, null, expiringProduct.PurchaseVat));
 
-                totalPrice += totalAmount;
+                totalPrice += itemTotalAmount;
 
                 context.ProductsInventory.Remove(expiringProduct);
             }

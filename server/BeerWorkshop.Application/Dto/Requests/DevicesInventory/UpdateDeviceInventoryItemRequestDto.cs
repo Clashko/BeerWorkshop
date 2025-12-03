@@ -6,5 +6,6 @@ public record UpdateDeviceInventoryItemRequestDto(
     decimal Quantity,
     DateTime IncomingDate,
     decimal PurchasePrice,
+    decimal PurchaseVat,
     decimal RetailPrice
 );

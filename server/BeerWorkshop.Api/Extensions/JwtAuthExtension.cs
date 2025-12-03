@@ -19,10 +19,17 @@ public static class JwtAuthExtension
             opts.SaveToken = true;
             opts.TokenValidationParameters = new TokenValidationParameters()
             {
+                ValidateIssuer = true,
+                ValidIssuer = configuration.JwtIssuer,
+
+                ValidateAudience = true,
+                ValidAudience = configuration.JwtAudience,
+
                 ValidateIssuerSigningKey = true,
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration.JwtSecureKey))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration.JwtSecureKey)),
+
+                ValidateLifetime = true,                // <--- обязательно
+                ClockSkew = TimeSpan.Zero
             };
         });
     }

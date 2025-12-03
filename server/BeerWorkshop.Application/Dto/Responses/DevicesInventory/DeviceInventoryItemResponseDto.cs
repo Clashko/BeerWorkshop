@@ -5,5 +5,6 @@ public record DeviceInventoryItemResponseDto(
     decimal Quantity,
     DateTime IncomingDate,
     decimal PurchasePrice,
+    decimal PurchaseVat,
     decimal RetailPrice
 );

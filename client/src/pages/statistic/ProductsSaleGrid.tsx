@@ -50,6 +50,7 @@ export const ProductsSaleGrid = () => {
       spanRows: true,
     },
     {
+      colId: "name",
       headerName: "Наименование",
       valueGetter: ({ data }) => data!.name,
       sortable: true,

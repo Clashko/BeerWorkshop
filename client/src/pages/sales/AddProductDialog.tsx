@@ -80,6 +80,7 @@ export const AddProductDialog = ({ product, addProduct }: Props) => {
               <Input
                 size="sm"
                 type="number"
+                step="any"
                 value={quantity}
                 onChange={handleChangeQuantity}
               />
@@ -109,6 +110,7 @@ export const AddProductDialog = ({ product, addProduct }: Props) => {
               <Input
                 size="sm"
                 type="number"
+                step="any"
                 value={discount}
                 onChange={handleChangeDiscount}
               />

@@ -49,7 +49,9 @@ namespace BeerWorkshop.Application.MediatR.DevicesInventory.Delivery
 
                         context.DevicesInventory.Add(inventoryItem);
 
-                        var itemTotalAmount = TotalAmountCalculator.CalculateTotalAmount(inventoryItem.PurchasePrice, 1, inventoryItem.Quantity);
+                        var priceWithVat = inventoryItem.PurchasePrice * (1 + inventoryItem.PurchaseVat / 100);
+
+                        var itemTotalAmount = TotalAmountCalculator.CalculateTotalAmount(priceWithVat, 1, inventoryItem.Quantity);
 
                         statistic.Add(new DevicesStatisticEntity
                         {
@@ -63,7 +65,7 @@ namespace BeerWorkshop.Application.MediatR.DevicesInventory.Delivery
 
                         totalAmount += itemTotalAmount;
 
-                        checkRows.Add(new CheckRow(inventoryItem.Device.Name, Database.Enums.UnitOfMeasure.Piece, inventoryItem.Quantity, 1, inventoryItem.PurchasePrice, totalAmount));
+                        checkRows.Add(new CheckRow(inventoryItem.Device.ShortName, Database.Enums.UnitOfMeasure.Piece, inventoryItem.Quantity, inventoryItem.PurchasePrice, 1, totalAmount, null, inventoryItem.PurchaseVat));
 
                         deviceItemsResult.Add(mapper.Map<DeviceInventoryItemResponseDto>(inventoryItem));
                     }

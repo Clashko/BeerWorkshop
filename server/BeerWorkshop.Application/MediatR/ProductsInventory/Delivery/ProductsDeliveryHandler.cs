@@ -49,7 +49,9 @@ namespace BeerWorkshop.Application.MediatR.ProductsInventory.Delivery
 
                         context.ProductsInventory.Add(inventoryItem);
 
-                        var itemTotalAmount = TotalAmountCalculator.CalculateTotalAmount(inventoryItem.PurchasePrice, inventoryItem.PricePerQuantity, inventoryItem.Quantity);
+                        var priceWithVat = inventoryItem.PurchasePrice * (1 + inventoryItem.PurchaseVat / 100);
+
+                        var itemTotalAmount = TotalAmountCalculator.CalculateTotalAmount(priceWithVat, inventoryItem.PricePerQuantity, inventoryItem.Quantity);
 
                         statistic.Add(new ProductsStatisticEntity
                         {
@@ -63,7 +65,7 @@ namespace BeerWorkshop.Application.MediatR.ProductsInventory.Delivery
 
                         totalAmount += itemTotalAmount;
 
-                        checkRows.Add(new CheckRow(inventoryItem.Product.Name, inventoryItem.Product.UnitOfMeasure, inventoryItem.Quantity, inventoryItem.PricePerQuantity, inventoryItem.PurchasePrice, totalAmount));
+                        checkRows.Add(new CheckRow(inventoryItem.Product.ShortName, inventoryItem.Product.UnitOfMeasure, inventoryItem.Quantity, inventoryItem.PurchasePrice, inventoryItem.PricePerQuantity, totalAmount, null, inventoryItem.PurchaseVat));
 
                         productItemsResult.Add(mapper.Map<ProductInventoryItemResponseDto>(inventoryItem));
                     }

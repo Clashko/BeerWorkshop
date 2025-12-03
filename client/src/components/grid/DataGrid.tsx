@@ -86,18 +86,42 @@ function DataGridInner<TData>(
       onGridReady={(params) => {
         const col = params.api.getColumn("actions");
         if (col) params.api.autoSizeColumns([col.getId()]);
+
+        const namecol = params.api.getColumn("name");
+        if (namecol) params.api.autoSizeColumns([namecol.getId()]);
+
+        const shortnamecol = params.api.getColumn("shortName");
+        if (shortnamecol) params.api.autoSizeColumns([shortnamecol.getId()]);
       }}
       onFirstDataRendered={(params) => {
         const col = params.api.getColumn("actions");
         if (col) params.api.autoSizeColumns([col.getId()]);
+
+        const namecol = params.api.getColumn("name");
+        if (namecol) params.api.autoSizeColumns([namecol.getId()]);
+
+        const shortnamecol = params.api.getColumn("shortName");
+        if (shortnamecol) params.api.autoSizeColumns([shortnamecol.getId()]);
       }}
       onRowDataUpdated={(params) => {
         const col = params.api.getColumn("actions");
         if (col) params.api.autoSizeColumns([col.getId()]);
+
+        const namecol = params.api.getColumn("name");
+        if (namecol) params.api.autoSizeColumns([namecol.getId()]);
+
+        const shortnamecol = params.api.getColumn("shortName");
+        if (shortnamecol) params.api.autoSizeColumns([shortnamecol.getId()]);
       }}
       onModelUpdated={(params) => {
         const col = params.api.getColumn("actions");
         if (col) params.api.autoSizeColumns([col.getId()]);
+
+        const namecol = params.api.getColumn("name");
+        if (namecol) params.api.autoSizeColumns([namecol.getId()]);
+
+        const shortnamecol = params.api.getColumn("shortName");
+        if (shortnamecol) params.api.autoSizeColumns([shortnamecol.getId()]);
       }}
       enableCellSpan
       localeText={{

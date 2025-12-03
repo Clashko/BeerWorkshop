@@ -19,6 +19,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
 
   const columns: ColDef<DeviceResponseDto>[] = [
     {
+      colId: "name",
       headerName: "Наименование",
       field: "name",
       sortable: true,
@@ -26,6 +27,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       minWidth: 160
     },
     {
+      colId: "shortName",
       headerName: "Короткое наименование",
       field: "shortName",
       sortable: true,

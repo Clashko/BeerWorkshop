@@ -57,6 +57,7 @@ export const Grid = ({ gridRef, data, isLoading }: Props) => {
       minWidth: 150,
     },
     {
+      colId: "name",
       headerName: "Наименование",
       valueGetter: (params) => params.data?.product.name,
       cellStyle: {

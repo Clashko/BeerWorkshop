@@ -25,7 +25,7 @@ public class AuthController(IMediator mediator) : BaseApiController
     [HttpPost]
     public async Task<IActionResult> Register(RegisterUserRequestDto dto) => HandleResult(await mediator.Send(new RegisterCommand(dto)));
 
-    [Authorize]
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> RefreshToken(RefreshTokenRequestDto dto) => HandleResult(await mediator.Send(new RefreshTokenCommand(dto)));
 
