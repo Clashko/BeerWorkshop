@@ -60,6 +60,7 @@ node_modules/
 # Например, если ваш клиент React находится в подпапке "client-app" или "frontend"
 build/
 dist/
+dev-dist/
 out/
 client-app/build/
 frontend/build/
