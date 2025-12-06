@@ -102,6 +102,28 @@ export const BasketGrid = ({
 
   const columns: ColDef<BasketGridRow>[] = [
     {
+      colId: "actions",
+      headerName: "",
+      cellRenderer: (params: any) => {
+        return (
+          <IconButton
+            variant="ghost"
+            color="error"
+            onClick={() =>
+              params.data.itemType == 0
+                ? handleDeleteProduct(params.data.id)
+                : handleDeleteDevice(params.data.id)
+            }
+          >
+            <CgRemove size={16} />
+          </IconButton>
+        );
+      },
+      flex: 0,
+      sortable: false,
+      filter: false,
+    },
+    {
       headerName: "Тип",
       valueGetter: ({ data }) => BasketItemTypeDisplay[data!.itemType],
       cellStyle: {
@@ -166,28 +188,6 @@ export const BasketGrid = ({
       sortable: true,
       filter: "agTextColumnFilter",
       minWidth: 110,
-    },
-    {
-      colId: "actions",
-      headerName: "",
-      cellRenderer: (params: any) => {
-        return (
-          <IconButton
-            variant="ghost"
-            color="error"
-            onClick={() =>
-              params.data.itemType == 0
-                ? handleDeleteProduct(params.data.id)
-                : handleDeleteDevice(params.data.id)
-            }
-          >
-            <CgRemove size={16} />
-          </IconButton>
-        );
-      },
-      flex: 0,
-      sortable: false,
-      filter: false,
     },
   ];
 
@@ -258,7 +258,7 @@ export const BasketGrid = ({
     const realizationDto: RealizationRequestDto = {
       products: products,
       devices: devices,
-      totalDiscount: totalDiscount,
+      totalDiscount: useTotalDiscount ? totalDiscount : null,
       discountCalculatorType: discountCalculatorType,
     };
     realize(realizationDto)

@@ -10,11 +10,12 @@ import { useReadProductsInventoryMutation } from "../../redux/api/productsInvent
 import { useAppSelector } from "../../redux/store/store";
 import { selectProductsInventory } from "../../redux/features/productsInventorySlice";
 import { toast } from "react-toastify";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DataGrid, DataGridQuickFilter, DataGridRef } from "../../components";
 import { BiRefresh } from "react-icons/bi";
 import { AddProductDialog } from "./AddProductDialog";
 import { BasketRow } from "./Sales";
+import { GridApi } from "ag-grid-community";
 
 interface Props {
   basketProducts: BasketRow[];
@@ -23,6 +24,15 @@ interface Props {
 
 export const ProductsGrid = ({ basketProducts, setBasketProducts }: Props) => {
   const gridRef = useRef<DataGridRef<InventoryRow>>(null);
+
+  const [api, setApi] = useState<GridApi<InventoryRow> | null>(null);
+
+  useEffect(() => {
+    if (gridRef.current?.api) {
+      setApi(gridRef.current.api);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridRef.current]);
 
   const [read, { isLoading }] = useReadProductsInventoryMutation();
 
@@ -47,6 +57,21 @@ export const ProductsGrid = ({ basketProducts, setBasketProducts }: Props) => {
   };
 
   const columns: ColDef<InventoryRow>[] = [
+    {
+      colId: "actions",
+      headerName: "",
+      cellRenderer: (params: any) => {
+        return (
+          <AddProductDialog
+            product={params.data}
+            addProduct={handleAddProduct}
+          />
+        );
+      },
+      flex: 0,
+      sortable: false,
+      filter: false,
+    },
     {
       colId: "name",
       headerName: "Наименование",
@@ -93,21 +118,6 @@ export const ProductsGrid = ({ basketProducts, setBasketProducts }: Props) => {
       filter: "agTextColumnFilter",
       minWidth: 150,
     },
-    {
-      colId: "actions",
-      headerName: "",
-      cellRenderer: (params: any) => {
-        return (
-          <AddProductDialog
-            product={params.data}
-            addProduct={handleAddProduct}
-          />
-        );
-      },
-      flex: 0,
-      sortable: false,
-      filter: false,
-    },
   ];
 
   const handleAddProduct = (row: BasketRow) => {
@@ -117,10 +127,7 @@ export const ProductsGrid = ({ basketProducts, setBasketProducts }: Props) => {
   return (
     <div className="bg-surface flex flex-col gap-2 h-full w-full">
       <div className="w-full flex flex-row gap-4 items-center justify-between">
-        <DataGridQuickFilter
-          api={gridRef.current?.api ?? null}
-          className="border-primary px-2 py-1"
-        />
+        <DataGridQuickFilter api={api} className="border-primary px-2 py-1" />
         <Button
           variant="ghost"
           onClick={refreshInventory}

@@ -36,7 +36,7 @@ export const FormStringSelect = ({
             {...props}
           >
             <Select.Trigger />
-            <Select.List>
+            <Select.List className="overflow-y-auto max-h-40! !important">
               {options.map(({ label, value }) => (
                 <Select.Option key={value} value={String(value)}>
                   {label}

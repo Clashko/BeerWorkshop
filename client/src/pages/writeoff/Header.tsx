@@ -6,12 +6,13 @@ import {
   DataGridQuickFilter,
   DataGridRef,
 } from "../../components";
-import { RefObject } from "react";
+import { RefObject, useEffect, useState } from "react";
 import { ExpiredInventoryRow } from "./Grid";
 import { useDeleteExpiredProductsMutation } from "../../redux/api/writeOffApi";
 import { toast } from "react-toastify";
 import { ExpiringProductResponseDto } from "../../redux/dtos/responses/writeOff";
 import { saveAs } from "file-saver";
+import { GridApi } from "ag-grid-community";
 
 interface Props {
   gridRef: RefObject<DataGridRef<ExpiredInventoryRow> | null>;
@@ -20,6 +21,15 @@ interface Props {
 }
 
 export const Header = ({ gridRef, data, refreshExpiredInventory }: Props) => {
+  const [api, setApi] = useState<GridApi<ExpiredInventoryRow> | null>(null);
+
+  useEffect(() => {
+    if (gridRef.current?.api) {
+      setApi(gridRef.current.api);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridRef.current]);
+
   const [deleteExpiredProduct, { isLoading }] =
     useDeleteExpiredProductsMutation();
 
@@ -81,7 +91,7 @@ export const Header = ({ gridRef, data, refreshExpiredInventory }: Props) => {
         </Typography>
         <div className="flex sm:hidden flex-row gap-2">{renderButtons()}</div>
       </div>
-      <DataGridQuickFilter api={gridRef.current?.api ?? null} />
+      <DataGridQuickFilter api={api} />
       <div className="hidden sm:flex flex-row gap-2">{renderButtons()}</div>
     </div>
   );

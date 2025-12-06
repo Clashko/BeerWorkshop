@@ -1,10 +1,10 @@
-/* eslint-disable react-hooks/refs */
 import { Button, Typography } from "@material-tailwind/react";
 import { BiRefresh } from "react-icons/bi";
 import { AddForm } from "./AddForm";
 import { DataGridQuickFilter, DataGridRef } from "../../components";
 import { ProductResponseDto } from "../../redux/dtos/responses/producs";
-import { RefObject } from "react";
+import { RefObject, useEffect, useState } from "react";
+import { GridApi } from "ag-grid-community";
 
 interface Props {
   gridRef: RefObject<DataGridRef<ProductResponseDto> | null>;
@@ -12,6 +12,15 @@ interface Props {
 }
 
 export const Header = ({ gridRef, refreshProducts }: Props) => {
+  const [api, setApi] = useState<GridApi<ProductResponseDto> | null>(null);
+
+  useEffect(() => {
+    if (gridRef.current?.api) {
+      setApi(gridRef.current.api);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridRef.current]);
+
   const renderButtons = () => {
     return (
       <>
@@ -34,14 +43,10 @@ export const Header = ({ gridRef, refreshProducts }: Props) => {
     <div className="w-full flex flex-col sm:flex-row gap-2 items-center">
       <div className="w-full sm:w-auto flex flex-row gap-2 justify-between">
         <Typography type="h5">Продукты</Typography>
-        <div className="flex sm:hidden flex-row gap-2">
-          {renderButtons()}
-        </div>
+        <div className="flex sm:hidden flex-row gap-2">{renderButtons()}</div>
       </div>
-      <DataGridQuickFilter api={gridRef.current?.api ?? null} />
-      <div className="hidden sm:flex flex-row gap-2">
-        {renderButtons()}
-      </div>
+      <DataGridQuickFilter api={api} />
+      <div className="hidden sm:flex flex-row gap-2">{renderButtons()}</div>
     </div>
   );
 };

@@ -3,9 +3,10 @@ import { Button, Typography } from "@material-tailwind/react";
 import { DataGridQuickFilter, DataGridRef } from "../../components";
 import { BiRefresh } from "react-icons/bi";
 import { AddForm } from "./AddForm";
-import { RefObject } from "react";
+import { RefObject, useEffect, useState } from "react";
 import { DeviceInventoryRow } from "./Grid";
 import { DeviceResponseDto } from "../../redux/dtos/responses/devices";
+import { GridApi } from "ag-grid-community";
 
 interface Props {
   gridRef: RefObject<DataGridRef<DeviceInventoryRow> | null>;
@@ -18,6 +19,15 @@ export const Header = ({
   refreshDevicesInventory,
   devices,
 }: Props) => {
+  const [api, setApi] = useState<GridApi<DeviceInventoryRow> | null>(null);
+
+  useEffect(() => {
+    if (gridRef.current?.api) {
+      setApi(gridRef.current.api);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridRef.current]);
+
   const renderButtons = () => {
     return (
       <>
@@ -44,7 +54,7 @@ export const Header = ({
         </Typography>
         <div className="flex sm:hidden flex-row gap-2">{renderButtons()}</div>
       </div>
-      <DataGridQuickFilter api={gridRef.current?.api ?? null} />
+      <DataGridQuickFilter api={api} />
       <div className="hidden sm:flex flex-row gap-2">{renderButtons()}</div>
     </div>
   );

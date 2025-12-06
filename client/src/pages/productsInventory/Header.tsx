@@ -1,11 +1,11 @@
-/* eslint-disable react-hooks/refs */
 import { Button, Typography } from "@material-tailwind/react";
 import { DataGridQuickFilter, DataGridRef } from "../../components";
 import { BiRefresh } from "react-icons/bi";
 import { AddForm } from "./AddForm";
 import { ProductResponseDto } from "../../redux/dtos/responses/producs";
-import { RefObject } from "react";
+import { RefObject, useEffect, useState } from "react";
 import { InventoryRow } from "./Grid";
+import { GridApi } from "ag-grid-community";
 
 interface Props {
   gridRef: RefObject<DataGridRef<InventoryRow> | null>;
@@ -18,6 +18,15 @@ export const Header = ({
   refreshProductsInventory,
   products,
 }: Props) => {
+  const [api, setApi] = useState<GridApi<InventoryRow> | null>(null);
+
+  useEffect(() => {
+    if (gridRef.current?.api) {
+      setApi(gridRef.current.api);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridRef.current]);
+
   const renderButtons = () => {
     return (
       <>
@@ -44,7 +53,7 @@ export const Header = ({
         </Typography>
         <div className="flex sm:hidden flex-row gap-2">{renderButtons()}</div>
       </div>
-      <DataGridQuickFilter api={gridRef.current?.api ?? null} />
+      <DataGridQuickFilter api={api} />
       <div className="hidden sm:flex flex-row gap-2">{renderButtons()}</div>
     </div>
   );

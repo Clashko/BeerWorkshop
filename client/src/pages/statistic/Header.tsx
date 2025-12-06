@@ -9,6 +9,8 @@ import "react-datepicker/dist/react-datepicker.css";
 export const Header = () => {
   const [read, { isLoading }] = useReadStatisticMutation();
 
+  const [tabLock, setTabLock] = useState(true);
+
   const now = new Date();
 
   const [firstDate, setFirstDate] = useState<Date>(
@@ -36,13 +38,22 @@ export const Header = () => {
         Статистика
       </Typography>
 
-      <Popover>
-        <Popover.Trigger as={Button} variant="ghost" size="md" className="text-foreground">
+      <Popover placement="bottom-end">
+        <Popover.Trigger
+          as={Button}
+          variant="ghost"
+          size="md"
+          className="text-foreground"
+        >
           <BiRefresh size={26} />
           Обновить
         </Popover.Trigger>
         <Popover.Content className="max-w-sm p-4 z-[9999] bg-surface border border-dashed border-secondary">
-          <div className="flex flex-col gap-4">
+          <div
+            className="flex flex-col gap-4"
+            onMouseDown={() => setTabLock(false)}
+            onKeyDown={() => setTabLock(false)}
+          >
             <div className="flex flex-col gap-2">
               <Typography type="small">Начальная дата</Typography>
               <DatePickerLib
@@ -51,6 +62,7 @@ export const Header = () => {
                   if (date != null) setFirstDate(date);
                 }}
                 dateFormat="dd.MM.yyyy"
+                tabIndex={tabLock ? -1 : 0}
                 className="w-full aria-disabled:cursor-not-allowed outline-none focus:outline-none text-black dark:text-white placeholder:text-foreground/60 bg-transparent ring-transparent border border-surface transition-all duration-300 ease-in disabled:opacity-50 disabled:pointer-events-none data-[error=true]:border-error data-[success=true]:border-success select-none data-[shape=pill]:rounded-full text-sm rounded-md py-2 px-2.5 ring shadow-sm data-[icon-placement=start]:ps-9 data-[icon-placement=end]:pe-9 hover:border-primary hover:ring-primary/10 focus:border-primary focus:ring-primary/10 peer"
               />
             </div>
@@ -62,6 +74,7 @@ export const Header = () => {
                   if (date != null) setSecondDate(date);
                 }}
                 dateFormat="dd.MM.yyyy"
+                tabIndex={tabLock ? -1 : 0}
                 className="w-full aria-disabled:cursor-not-allowed outline-none focus:outline-none text-black dark:text-white placeholder:text-foreground/60 bg-transparent ring-transparent border border-surface transition-all duration-300 ease-in disabled:opacity-50 disabled:pointer-events-none data-[error=true]:border-error data-[success=true]:border-success select-none data-[shape=pill]:rounded-full text-sm rounded-md py-2 px-2.5 ring shadow-sm data-[icon-placement=start]:ps-9 data-[icon-placement=end]:pe-9 hover:border-primary hover:ring-primary/10 focus:border-primary focus:ring-primary/10 peer"
               />
             </div>

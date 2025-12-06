@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  
+div[role="listbox"] {
+  max-height: 11rem !important;
+  overflow-y: auto !important;
 }
