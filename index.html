@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Пивной цех</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --orange: #f57c00;
+      --blue: #1976d2;
+      --dark: #1e1e1e;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: url('https://img.freepik.com/free-vector/gradient-background-international-beer-day-celebration_23-2150533676.jpg?semt=ais_hybrid&w=740&q=80') no-repeat center center;
+      background-size: cover;
+      position: relative;
+      color: #fff;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 0;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      padding: 2.5rem;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      margin-bottom: 1rem;
+      color: var(--orange);
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #f0f0f0;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    a {
+      text-decoration: none;
+      padding: 0.9rem 1.8rem;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    a.swagger {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    a.swagger:hover {
+      background: #0d47a1;
+    }
+
+    a.client {
+      background: var(--orange);
+      color: #fff;
+    }
+
+    a.client:hover {
+      background: #e65100;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 1rem;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="card">
+    <!-- Логотип -->
+    <img src="/Client/assets/logo.png" alt="Логотип Пивного цеха" class="logo" />
+    <h1>Добро пожаловать в «Пивной цех»</h1>
+    <p>Магазин разливного пива, где вкус и атмосфера — как дома.</p>
+    <div class="buttons">
+      <a href="/server/swagger" target="_blank" class="swagger">API Swagger</a>
+      <a href="/client" target="_blank" class="client">Клиентское приложение</a>
+    </div>
+  </div>
+  <footer>&copy; 2025 Пивной цех. Все права защищены.</footer>
+</body>
+</html>
